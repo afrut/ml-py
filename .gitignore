@@ -1,1 +1,4 @@
 data/*.pkl
+png/*
+**/__pycache__
+*.swp
