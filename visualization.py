@@ -16,10 +16,25 @@ if __name__ == '__main__':
     il.reload(datacfg)
     plt.close()
 
-    # create DataFrame from data
     datacfg = datacfg.datacfg()
-    df = pk.load(open(datacfg['iris']['filepath'], 'rb'))
-    plots.stemleaf(df)
+    for datasetname in datacfg.keys():
+        print(datasetname)
+        df = pk.load(open(datacfg[datasetname]['filepath'], 'rb'))
+
+        plots.stemleaf(df
+            ,title = 'Stem and Leaf'
+            ,save = True
+            ,savepath = '.\\png\\plots\\stemleaf\\' + datasetname + '.txt')
+
+        plots.histogram(df
+            ,save = True
+            ,savepath = '.\\png\\plots\\histogram\\' + datasetname + '.png'
+            ,close = True)
+
+        plots.boxplot(df
+            ,save = True
+            ,savepath = '.\\png\\plots\\boxplot\\' + datasetname + '.png'
+            ,close = True);
 
 
 
