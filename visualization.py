@@ -19,13 +19,7 @@ if __name__ == '__main__':
     # create DataFrame from data
     datacfg = datacfg.datacfg()
     df = pk.load(open(datacfg['iris']['filepath'], 'rb'))
-
-    # define a column of interest
-    col = 'petal_width'
-
-    vals = dfIris.loc[:, col]
-    fig, ax = plots.stemleaf(vals
-        ,title = 'Stem and Leaf Plot of {0}'.format(col))
+    plots.stemleaf(df)
 
 
 
