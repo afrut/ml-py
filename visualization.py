@@ -34,8 +34,12 @@ if __name__ == '__main__':
         plots.boxplot(df
             ,save = True
             ,savepath = '.\\png\\plots\\boxplot\\' + datasetname + '.png'
-            ,close = True);
+            ,close = True)
 
+        plots.scattermatrix(df
+            ,save = True
+            ,savepath = '.\\png\\plots\\scattermatrix\\' + datasetname + '.png'
+            ,close = True)
 
 
 
