@@ -41,6 +41,10 @@ if __name__ == '__main__':
             ,savepath = '.\\png\\plots\\scattermatrix\\' + datasetname + '.png'
             ,close = True)
 
+        plots.heatmap(df
+            ,save = True
+            ,savepath = '.\\png\\plots\\heatmap\\' + datasetname + '.png'
+            ,close = True)
 
 
 
