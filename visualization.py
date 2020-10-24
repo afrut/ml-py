@@ -46,6 +46,15 @@ if __name__ == '__main__':
             ,savepath = '.\\png\\plots\\heatmap\\' + datasetname + '.png'
             ,close = True)
 
+        plots.probplot(df
+            ,save = True
+            ,savepath = '.\\png\\plots\\probplot\\' + datasetname + '.png'
+            ,close = True)
+
+
+
+
+        
 
 
     plt.show()
