@@ -1,5 +1,10 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-#dataframe.update
+# TODO: pd.groupby.count()
+# TODO: np.squeeze
+# TODO: np.newaxis
+# TODO: mask
+# TODO: df.gt,ge,eq,lt,le
+# TODO: df.where
 import subprocess as sp
 import pandas as pd
 import numpy as np
@@ -100,3 +105,12 @@ if __name__ == '__main__':
         ,suffixes = ['_old', '_new']
         ,copy = False)
     print('merged dataframe:\n{0}\n'.format(df))
+
+    # create an array by specifying a start, stop and interval
+    arr = np.arange(0, 5, 0.5)
+    print('arr:\n{0}\n'.format(arr))
+
+    # create an array by specifying a start, stop, and the number of
+    # equally-spaced values
+    arr = np.linspace(0, 4, 17)
+    print('arr:\n{0}\n'.format(arr))
