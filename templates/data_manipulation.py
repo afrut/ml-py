@@ -1,7 +1,10 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: pd.groupby.count()
 # TODO: np.squeeze
 # TODO: np.newaxis
+# TODO: np.concatenate
+# TODO: np.stack
+# TODO: np.hstack
+# TODO: np.vstack
 # TODO: mask
 # TODO: df.gt,ge,eq,lt,le
 # TODO: df.where
@@ -114,3 +117,7 @@ if __name__ == '__main__':
     # equally-spaced values
     arr = np.linspace(0, 4, 17)
     print('arr:\n{0}\n'.format(arr))
+
+    # group by/aggregate the data on a column(s)
+    grouped = df.groupby(['class'])
+    print('number of elements in each class:\n{0}\n'.format(grouped.size()))
