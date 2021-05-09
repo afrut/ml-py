@@ -24,12 +24,11 @@ if __name__ == '__main__':
     nonnum = np.array(nonnum)
 
     # determine layout of univariate plots
-    numrows = math.sqrt(len(numerics))
-    if numrows - int(numrows) > 0:
-        numcols = numrows + 1
-    else:
-        numcols = int(numrows)
-    numrows = int(numrows)
+    numvar = len(numerics)
+    numrows = int(math.sqrt(numvar))
+    numcols = numrows
+    while(numrows * numcols < numvar):
+        numcols = numcols + 1
     layout = (numrows, numcols)
 
     # matrix of histograms
