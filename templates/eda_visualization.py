@@ -3,6 +3,7 @@ import subprocess as sp
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 if __name__ == '__main__':
     sp.call('cls', shell = True)
@@ -15,17 +16,31 @@ if __name__ == '__main__':
             ,header = None
             ,index_col = False)
 
+    # get numeric types
+    numerics = df.select_dtypes([np.number]).columns.to_numpy()
+
+    # get non-numeric types
+    nonnum = list(set(df.columns) - set(numerics))
+    nonnum = np.array(nonnum)
+
+    # determine layout of univariate plots
+    numrows = math.sqrt(len(numerics))
+    if numrows - int(numrows) > 0:
+        numcols = numrows + 1
+    else:
+        numcols = int(numrows)
+    numrows = int(numrows)
+    layout = (numrows, numcols)
+
     # matrix of histograms
     ret = df.hist()
 
     # matrix of probability density functions
-    ret = df.plot(kind = 'density', subplots = True, layout = (2, 2), sharex = False)
+    ret = df.plot(kind = 'density', subplots = True, layout = layout, sharex = False)
     
     # box and whisker plot for all numeric quantities
-    ret = df.plot(kind = 'box', subplots = True, layout = (2, 2), sharex = False, sharey = False)
+    ret = df.plot(kind = 'box', subplots = True, layout = layout, sharex = False, sharey = False)
     
-    plt.close('all')
-
     # matrix/heatmap of correlations
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
