@@ -31,19 +31,21 @@ if __name__ == '__main__':
         numcols = numcols + 1
     layout = (numrows, numcols)
 
+    # get only numeric data
+    dfnumeric = df.loc[:, numerics]
+
     # matrix of histograms
-    ret = df.hist()
+    ret = dfnumeric.hist()
 
     # matrix of probability density functions
-    ret = df.plot(kind = 'density', subplots = True, layout = layout, sharex = False)
+    ret = dfnumeric.plot(kind = 'density', subplots = True, layout = layout, sharex = False)
     
     # box and whisker plot for all numeric quantities
-    ret = df.plot(kind = 'box', subplots = True, layout = layout, sharex = False, sharey = False)
+    ret = dfnumeric.plot(kind = 'box', subplots = True, layout = layout, sharex = False, sharey = False)
     
     # matrix/heatmap of correlations
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    dfnumeric = df.loc[:, df.select_dtypes([np.number]).columns]
 
     # plot the matrix of correlations, returns the colorbar image
     axesimage = ax.matshow(dfnumeric.corr(), vmin = -1, vmax = 1)
