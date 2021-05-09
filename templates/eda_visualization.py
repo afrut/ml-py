@@ -60,5 +60,8 @@ if __name__ == '__main__':
     ax.set_xticklabels(dfnumeric.columns)
     ax.set_yticklabels(dfnumeric.columns)
 
+    # scatter matrix plot
+    pd.plotting.scatter_matrix(dfnumeric)
+
     plt.show()
     plt.close('all')
