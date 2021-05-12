@@ -1,5 +1,6 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
 # TODO: np.squeeze
+# TODO: np.ravel
 # TODO: np.newaxis
 # TODO: np.concatenate
 # TODO: np.stack
