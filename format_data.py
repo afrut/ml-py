@@ -130,3 +130,22 @@ if __name__ == "__main__":
             ,'age'
             ,'class'])
     pk.dump(dfPima, open('.\\data\\pima.pkl','wb'))
+
+    # adult census income dataset
+    dfAdult = pd.read_csv('.\\data\\adult\\adult_all.data'
+        ,names = ['age'
+            ,'workclass'
+            ,'fnlwgt'
+            ,'education'
+            ,'education-num'
+            ,'marital-status'
+            ,'occupation'
+            ,'relationship'
+            ,'race'
+            ,'sex'
+            ,'capital-gain'
+            ,'capital-loss'
+            ,'hours-per-week'
+            ,'native-country'
+            ,'class'])
+    pk.dump(dfAdult, open('.\\data\\adult.pkl','wb'))
