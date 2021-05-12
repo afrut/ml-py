@@ -117,3 +117,16 @@ if __name__ == "__main__":
             ,'od280/od315 of diluted wines'
             ,'proline'])
     pk.dump(dfWineCult, open('.\\data\\wineCultivar.pkl','wb'))
+
+    # pima indians diabetes dataset
+    dfPima = pd.read_csv('.\\data\\pima\\pima-indians-diabetes.csv'
+        ,names = ['pregnancies'
+            ,'glucose'
+            ,'bloodPressure'
+            ,'skinThickness'
+            ,'insulin'
+            ,'bmi'
+            ,'diabetesPedigreef'
+            ,'age'
+            ,'class'])
+    pk.dump(dfPima, open('.\\data\\pima.pkl','wb'))
