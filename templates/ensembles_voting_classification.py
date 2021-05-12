@@ -1,5 +1,4 @@
 #exec(open('templates\\ensembles_voting_classification.py').read())
-# testing different classification algorithms
 import subprocess as sp
 import numpy as np
 import pickle as pk
