@@ -3,9 +3,9 @@
 import subprocess as sp
 import numpy as np
 import pickle as pk
-import sklearn.model_selection as sm
+import sklearn.model_selection as ms
 import sklearn.ensemble as ensemble
-import sklearn.tree
+import sklearn.tree as tree
 
 if __name__ == '__main__':
     sp.call('cls', shell = True)
