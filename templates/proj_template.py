@@ -5,14 +5,19 @@
 
 # 2. Summarize Data
 # a) Descriptive statistics
+#    - Note the scale of the attributes for normalizing
+#    - Note features/variables that are correlated to be removed
 # b) Data visualizations
+#    - Consider standardizing
+#    - Note exponential/bi-modal distributions
+#    - Note skewed Gaussian distributions
 
 # 3. Prepare Data
 # a) Data Cleaning
 # b) Feature Selection
 # c) Data Transforms
-# 4. Evaluate Algorithms
 
+# 4. Evaluate Algorithms
 # a) Split-out validation dataset
 # b) Test options and evaluation metric
 # c) Spot Check Algorithms
