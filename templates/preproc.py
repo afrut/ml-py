@@ -2,6 +2,7 @@
 import subprocess as sp
 import pandas as pd
 import sklearn.preprocessing as pp
+import numpy as np
 
 if __name__ == '__main__':
     sp.call('cls', shell = True)
