@@ -1,4 +1,5 @@
 #exec(open('templates\\eda.py').read())
+# TODO: add visualization for non-numeric data
 import subprocess as sp
 import pandas as pd
 import numpy as np
