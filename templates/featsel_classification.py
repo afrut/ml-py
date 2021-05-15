@@ -57,6 +57,7 @@ if __name__ == '__main__':
     model.fit(X, y)
     srs = pd.Series(model.feature_importances_, index = xcols)
     srs.sort_values(ascending = False, inplace = True)
+    results['ExtraTrees'] = srs
     print('ExtraTreesClassifier feature importance rankings:')
     for idx in srs.index:
         print('    {0: <20} - {1:.4f}'.format(idx, srs[idx]))
@@ -66,6 +67,7 @@ if __name__ == '__main__':
     model.fit(X, y)
     srs = pd.Series(model.feature_importances_, index = xcols)
     srs.sort_values(ascending = False, inplace = True)
+    results['RandomForest'] = srs
     print('RandomForestClassifier feature importance rankings:')
     for idx in srs.index:
         print('    {0: <20} - {1:.4f}'.format(idx, srs[idx]))
@@ -79,7 +81,22 @@ if __name__ == '__main__':
     selector = sfs.RFE(model, n_features_to_select = k).fit(X, y)
     srs = pd.Series(selector.ranking_, index = xcols)
     srs.sort_values(ascending = True, inplace = True)
+    results['rfe'] = srs
     print('Recursive feature elimination feature rankings:')
     for idx in srs.index:
         print('    {0: <20} - {1:.4f}'.format(idx, srs[idx]))
     print('')
+
+    # get best features according to all ranking schemes
+    dfresults = pd.DataFrame(index = xcols)
+    rank = np.arange(0, len(xcols))
+    for entry in results.items():
+        dfresults[entry[0]] = pd.Series(rank.copy(), index = entry[1].index)
+    srs = dfresults.sum(axis = 1).sort_values()
+    print('All features ranked:')
+    for idx in srs.index:
+        print('    {0}'.format(idx))
+    print('')
+    print('Best {0} features:'.format(k))
+    for cnt in range(k):
+        print('    {0}'.format(srs.index[cnt]))
