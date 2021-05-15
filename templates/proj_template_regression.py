@@ -154,44 +154,61 @@ if __name__ == '__main__':
     # - feature selection pipeline
     # - tuning pipeline
     # ----------------------------------------
+    # TODO: never include SGDRegressor without scaling
     plt.close('all')
     models = dict()
-    models['LR'] = slm.LinearRegression
-    models['RIDGE'] = slm.Ridge
-    models['LASSO'] = slm.Lasso
-    #models['MTLASSO'] = slm.MultiTaskLasso
-    models['EN'] = slm.ElasticNet
-    #models['MTEN'] = slm.MultiTaskElasticNet
-    models['LARS'] = slm.Lars
-    models['LASSOLARS'] = slm.LassoLars
-    models['OMP'] = slm.OrthogonalMatchingPursuit
-    models['BRIDGE'] = slm.BayesianRidge
-    models['TW'] = slm.TweedieRegressor
-    #models['SGD'] = slm.SGDRegressor
-    models['PA'] = slm.PassiveAggressiveRegressor
-    models['HUBER'] = slm.HuberRegressor
-    models['RANSAC'] = slm.RANSACRegressor
-    models['TH'] = slm.TheilSenRegressor
-    models['KRR'] = kr.KernelRidge
-    models['GPR'] = gp.GaussianProcessRegressor
-    models['PLS'] = cd.PLSRegression
-    models['KNN'] = neighbors.KNeighborsRegressor
-    models['CART'] = tree.DecisionTreeRegressor
-    models['SVM'] = svm.SVR
-    models['AB'] = ensemble.AdaBoostRegressor
-    models['GBM'] = ensemble.GradientBoostingRegressor
-    models['RF'] = ensemble.RandomForestRegressor
-    models['ET'] = ensemble.ExtraTreesRegressor
-    models['NN'] = nn.MLPRegressor
-    
+    models['LR'] = (slm.LinearRegression, {})
+    models['RIDGE'] = (slm.Ridge, {})
+    models['LASSO'] = (slm.Lasso, {})
+    #models['MTLASSO'] = (slm.MultiTaskLasso, {})
+    models['EN'] = (slm.ElasticNet, {})
+    #models['MTEN'] = (slm.MultiTaskElasticNet, {})
+    models['LARS'] = (slm.Lars, {})
+    models['LASSOLARS'] = (slm.LassoLars, {})
+    models['OMP'] = (slm.OrthogonalMatchingPursuit, {})
+    models['BRIDGE'] = (slm.BayesianRidge, {})
+    models['TW'] = (slm.TweedieRegressor, {'max_iter': 10000})
+    models['SGD'] = (slm.SGDRegressor, {}) # always standard-scale this
+    models['PA'] = (slm.PassiveAggressiveRegressor, {})
+    models['HUBER'] = (slm.HuberRegressor, {'max_iter': 10000})
+    models['RANSAC'] = (slm.RANSACRegressor, {})
+    models['TH'] = (slm.TheilSenRegressor, {})
+    models['KRR'] = (kr.KernelRidge, {})
+    models['GPR'] = (gp.GaussianProcessRegressor, {})
+    models['PLS'] = (cd.PLSRegression, {}) # don't include this in the voting regressor
+    models['KNN'] = (neighbors.KNeighborsRegressor, {})
+    models['CART'] = (tree.DecisionTreeRegressor, {})
+    models['SVM'] = (svm.SVR, {})
+    models['AB'] = (ensemble.AdaBoostRegressor, {})
+    models['GBM'] = (ensemble.GradientBoostingRegressor, {})
+    models['RF'] = (ensemble.RandomForestRegressor, {})
+    models['ET'] = (ensemble.ExtraTreesRegressor, {})
+    models['NN'] = (nn.MLPRegressor, {'max_iter': 10000})
+
+    # create a voting regressor out of all the regressors
+    estimators = list()
+    for entry in models.items():
+        name = entry[0]
+        model = entry[1][0]
+        args = entry[1][1]
+        if name != 'PLS' and name != 'SGD':
+            estimators.append((name, model(**args)))
+    models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators})
+
     pipelines = dict()
     for entry in models.items():
-        pipelines[entry[0]] = pipeline.Pipeline([(entry[0], entry[1]())])
-        pipelines['Scaled' + entry[0]] = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (entry[0], entry[1]())])
+        name = entry[0]
+        model = entry[1][0]
+        args = entry[1][1]
+        if name != 'SGD':   # SGD always needs scaling
+            pipelines[name] = pipeline.Pipeline([(name, model(**args))])
+        pipelines['Scaled' + name] = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
     
     # specify cross-validation
     k = 10                                                                   # number of folds
     cvsplitter = sms.KFold(n_splits = k, shuffle = True, random_state = 0)   # cross-validation splitter
+    foo = ensemble.VotingRegressor(estimators = [('LR', slm.LinearRegression()), ('RIDGE', slm.Ridge())])
+    score = -1 * sms.cross_val_score(foo, Xtrain, ytrain, cv = cvsplitter, scoring = 'neg_mean_absolute_error')
 
     # fit and compute scores
     scoring = 'neg_mean_absolute_error'
@@ -232,7 +249,6 @@ if __name__ == '__main__':
     plt.show()
     plt.close('all')
 
-# TODO: voting regressor
 # TODO: extend with polynomials
 # TODO: add tuning pipeline
 # TODO: feature selection pipeline
