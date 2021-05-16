@@ -34,6 +34,10 @@ if __name__ == '__main__':
     search.fit(X, y)
     print('Grid search score of best hyperparameter value: {0:.4f}'.format(search.best_score_))
     print('Grid search best hyperparameter value: {0:.4f}'.format(search.best_estimator_.alpha))
+    print('Grid search best hyperparameter values:')
+    for tpl in search.best_params_.items():
+        print('    {0:<10}: {1:.6f}'.format(tpl[0], tpl[1]))
+    print('')
     
     # use randomized search by selecting hyperparameter values randomly from a
     # uniform distribution 100 times
@@ -43,3 +47,7 @@ if __name__ == '__main__':
     search.fit(X, y)
     print('Randomized search score of best hyperparameter value: {0:.4f}'.format(search.best_score_))
     print('Randomized search best hyperparameter value: {0:.4f}'.format(search.best_estimator_.alpha))
+    print('Randomized search best hyperparameter values:')
+    for tpl in search.best_params_.items():
+        print('    {0:<10}: {1:.6f}'.format(tpl[0], tpl[1]))
+    print('')
