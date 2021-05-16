@@ -1,4 +1,6 @@
 #exec(open('templates\\proj_template_regression.py').read())
+# TODO: add more models; refer to sklearn api
+# TODO: use nested gridsearch
 import subprocess as sp
 import numpy as np
 import pickle as pk
@@ -147,6 +149,12 @@ if __name__ == '__main__':
         ,random_state = seed)
 
     # ----------------------------------------
+    # specify cross-validation
+    # ----------------------------------------
+    k = 10                                                                   # number of folds
+    cvsplitter = sms.KFold(n_splits = k, shuffle = True, random_state = 0)   # cross-validation splitter
+
+    # ----------------------------------------
     # Try different piplines
     # - base model
     # - standardized/normalized/min-max-scaled
@@ -154,36 +162,36 @@ if __name__ == '__main__':
     # - feature selection pipeline
     # - tuning pipeline
     # ----------------------------------------
-    # TODO: never include SGDRegressor without scaling
-    plt.close('all')
+    # define estimator parameters
+    # format: models[name] = (constructor, constructor_args, hyperparameter_grid)
     models = dict()
-    models['LR'] = (slm.LinearRegression, {})
-    models['RIDGE'] = (slm.Ridge, {})
-    models['LASSO'] = (slm.Lasso, {})
-    #models['MTLASSO'] = (slm.MultiTaskLasso, {})
-    models['EN'] = (slm.ElasticNet, {})
-    #models['MTEN'] = (slm.MultiTaskElasticNet, {})
-    models['LARS'] = (slm.Lars, {})
-    models['LASSOLARS'] = (slm.LassoLars, {})
-    models['OMP'] = (slm.OrthogonalMatchingPursuit, {})
-    models['BRIDGE'] = (slm.BayesianRidge, {})
-    models['TW'] = (slm.TweedieRegressor, {'max_iter': 10000})
-    models['SGD'] = (slm.SGDRegressor, {}) # always standard-scale this
-    models['PA'] = (slm.PassiveAggressiveRegressor, {})
-    models['HUBER'] = (slm.HuberRegressor, {'max_iter': 10000})
-    models['RANSAC'] = (slm.RANSACRegressor, {})
-    models['TH'] = (slm.TheilSenRegressor, {})
-    models['KRR'] = (kr.KernelRidge, {})
-    models['GPR'] = (gp.GaussianProcessRegressor, {})
-    models['PLS'] = (cd.PLSRegression, {}) # don't include this in the voting regressor
-    models['KNN'] = (neighbors.KNeighborsRegressor, {})
-    models['CART'] = (tree.DecisionTreeRegressor, {})
-    models['SVM'] = (svm.SVR, {})
-    models['AB'] = (ensemble.AdaBoostRegressor, {})
-    models['GBM'] = (ensemble.GradientBoostingRegressor, {})
-    models['RF'] = (ensemble.RandomForestRegressor, {})
-    models['ET'] = (ensemble.ExtraTreesRegressor, {})
-    models['NN'] = (nn.MLPRegressor, {'max_iter': 10000})
+    models['LR'] = (slm.LinearRegression, {}, {})
+    models['RIDGE'] = (slm.Ridge, {'random_state': seed}, {'alpha': np.logspace(-3, 3, 7)})
+    models['LASSO'] = (slm.Lasso, {'random_state': seed}, {})
+    #models['MTLASSO'] = (slm.MultiTaskLasso, {}, {})
+    models['EN'] = (slm.ElasticNet, {'random_state': seed}, {})
+    #models['MTEN'] = (slm.MultiTaskElasticNet, {}, {})
+    models['LARS'] = (slm.Lars, {'random_state': seed}, {})
+    models['LASSOLARS'] = (slm.LassoLars, {'random_state': seed}, {})
+    models['OMP'] = (slm.OrthogonalMatchingPursuit, {}, {})
+    models['BRIDGE'] = (slm.BayesianRidge, {}, {})
+    models['TW'] = (slm.TweedieRegressor, {'max_iter': 10000}, {})
+    models['SGD'] = (slm.SGDRegressor, {}, {}) # always standard-scale this
+    models['PA'] = (slm.PassiveAggressiveRegressor, {}, {})
+    models['HUBER'] = (slm.HuberRegressor, {'max_iter': 10000}, {})
+    models['RANSAC'] = (slm.RANSACRegressor, {'random_state': seed}, {})
+    models['TH'] = (slm.TheilSenRegressor, {'random_state': seed}, {})
+    models['KRR'] = (kr.KernelRidge, {}, {})
+    models['GPR'] = (gp.GaussianProcessRegressor, {'random_state': seed}, {})
+    models['PLS'] = (cd.PLSRegression, {}, {}) # don't include this in the voting regressor
+    models['KNN'] = (neighbors.KNeighborsRegressor, {}, {})
+    models['CART'] = (tree.DecisionTreeRegressor, {}, {})
+    models['SVM'] = (svm.SVR, {}, {})
+    models['AB'] = (ensemble.AdaBoostRegressor, {'random_state': seed}, {})
+    models['GBM'] = (ensemble.GradientBoostingRegressor, {'random_state': seed}, {})
+    models['RF'] = (ensemble.RandomForestRegressor, {'random_state': seed}, {})
+    models['ET'] = (ensemble.ExtraTreesRegressor, {'random_state': seed}, {})
+    models['NN'] = (nn.MLPRegressor, {'max_iter': 10000, 'random_state': seed}, {})
 
     # create a voting regressor out of all the regressors
     estimators = list()
@@ -193,38 +201,104 @@ if __name__ == '__main__':
         args = entry[1][1]
         if name != 'PLS' and name != 'SGD':
             estimators.append((name, model(**args)))
-    models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators})
+    models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators}, {})
 
+    # ----------------------------------------
+    # Pipeline definition
+    # ----------------------------------------
     pipelines = dict()
+    print('Pipeline creation:')
     for entry in models.items():
         name = entry[0]
         model = entry[1][0]
         args = entry[1][1]
-        if name != 'SGD':   # SGD always needs scaling
-            pipelines[name] = pipeline.Pipeline([(name, model(**args))])
-        pipelines['Scaled' + name] = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
-    
-    # specify cross-validation
-    k = 10                                                                   # number of folds
-    cvsplitter = sms.KFold(n_splits = k, shuffle = True, random_state = 0)   # cross-validation splitter
-    foo = ensemble.VotingRegressor(estimators = [('LR', slm.LinearRegression()), ('RIDGE', slm.Ridge())])
-    score = -1 * sms.cross_val_score(foo, Xtrain, ytrain, cv = cvsplitter, scoring = 'neg_mean_absolute_error')
 
-    # fit and compute scores
+        # ----------------------------------------
+        # pipeline for current model without scaling
+        # ----------------------------------------
+        if name != 'SGD':   # SGD always needs scaling
+            print('    Creating pipeline for {0: <16} - '.format(name), end = '')
+            ppl = pipeline.Pipeline([(name, model(**args))])
+
+            # tune hyperparameter for current pipeline
+            params = entry[1][2]
+            print('tuning hyperparameters - ', end = '')
+            if len(params) > 0:
+                param_grid = dict()
+                for tpl in params.items():
+                    hyperparameter = tpl[0]
+                    values = tpl[1]
+                    param_grid[name + '__' + hyperparameter] = values
+                search = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
+                search.fit(Xtrain, ytrain)
+
+                # add best hyperparameter value to list of arguments
+                newargs = args.copy()
+                for tpl in params.items():
+                    hyperparameter = tpl[0]
+                    newargs[hyperparameter] = search.best_params_[name + '__' + hyperparameter]
+
+                # recreate pipeline with new argument and add to list of pipelines to try
+                ppl = pipeline.Pipeline([(name, model(**newargs))])
+
+            # add pipeline to collection of piplines to try
+            pipelines[name] = ppl
+            print('done')
+
+        # ----------------------------------------
+        # pipeline for current model with scaling
+        # ----------------------------------------
+        print('    Creating pipeline for {0: <16} - '.format('Scaled' + name), end = '')
+        ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
+        
+        # tune hyperparameter for current pipeline
+        params = entry[1][2]
+        print('tuning hyperparameters - ', end = '')
+        if len(params) > 0:
+            param_grid = dict()
+            for tpl in params.items():
+                hyperparameter = tpl[0]
+                values = tpl[1]
+                param_grid[name + '__' + hyperparameter] = values
+            search = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
+            search.fit(Xtrain, ytrain)
+
+            # add best hyperparameter value to list of arguments
+            newargs = args.copy()
+            for tpl in params.items():
+                hyperparameter = tpl[0]
+                newargs[hyperparameter] = search.best_params_[name + '__' + hyperparameter]
+
+            # recreate pipeline with new argument and add to list of pipelines to try
+            ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**newargs))])
+
+        # add pipeline to collection of piplines to try
+        pipelines['Scaled' + name] = ppl
+        print('done')
+    print('')
+
+    # ----------------------------------------
+    # pipeline fitting and scoring
+    # ----------------------------------------
+    print('Pipleine fitting and scoring progress: name - mean accuracy - std accuracy')
     scoring = 'neg_mean_absolute_error'
-    algs = list()
+    pipelinenames = list()
     scores = list()
     for entry in pipelines.items():
-        score = -1 * sms.cross_val_score(entry[1], Xtrain, ytrain, cv = cvsplitter, scoring = scoring)
+        name = entry[0]
+        print('    {0:<20}'.format(name), end = '')
+        ppl = entry[1]
+        score = -1 * sms.cross_val_score(ppl, Xtrain, ytrain, cv = cvsplitter, scoring = scoring)
         scores.append(score)
-        algs.append(entry[0])
-        print('{0} - {1:.4f} - {2:.4f}'.format(entry[0], np.mean(score), np.std(score, ddof = 1)))
+        pipelinenames.append(entry[0])
+        print('{0:.4f} - {1:.4f}'.format(np.mean(score), np.std(score, ddof = 1)))
 
     # boxplot of results
+    plt.close('all')
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
     plt.boxplot(scores)
-    ax.set_xticklabels(algs)
+    ax.set_xticklabels(pipelinenames)
     ax.set_xlabel('Algorithm')
     ax.set_ylabel('Mean Absolute Error')
     ax.set_title('Mean Absolute Error of Different Algorithms')
@@ -240,7 +314,7 @@ if __name__ == '__main__':
 
     # table of results
     scores = np.array(scores)
-    dfScores = pd.DataFrame(index = algs)
+    dfScores = pd.DataFrame(index = pipelinenames)
     dfScores['mean'] = np.mean(scores, axis = 1)
     dfScores['std'] = np.std(scores, ddof = 1, axis = 1)
     print('Mean and standard deviation of MSE for different algorithms:')
@@ -250,5 +324,4 @@ if __name__ == '__main__':
     plt.close('all')
 
 # TODO: extend with polynomials
-# TODO: add tuning pipeline
 # TODO: feature selection pipeline
