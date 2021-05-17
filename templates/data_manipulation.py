@@ -1,14 +1,8 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: np.squeeze
-# TODO: np.ravel
-# TODO: np.newaxis
-# TODO: np.concatenate
-# TODO: np.stack
-# TODO: np.hstack
-# TODO: np.vstack
 # TODO: mask
 # TODO: df.gt,ge,eq,lt,le
 # TODO: df.where
+# TODO: zip
 import subprocess as sp
 import pandas as pd
 import numpy as np
@@ -110,6 +104,10 @@ if __name__ == '__main__':
         ,copy = False)
     print('merged dataframe:\n{0}\n'.format(df))
 
+    # group by/aggregate the data on a column(s)
+    grouped = df.groupby(['class'])
+    print('number of elements in each class:\n{0}\n'.format(grouped.size()))
+
     # create an array by specifying a start, stop and interval
     arr = np.arange(0, 5, 0.5)
     print('arr:\n{0}\n'.format(arr))
@@ -119,6 +117,40 @@ if __name__ == '__main__':
     arr = np.linspace(0, 4, 17)
     print('arr:\n{0}\n'.format(arr))
 
-    # group by/aggregate the data on a column(s)
-    grouped = df.groupby(['class'])
-    print('number of elements in each class:\n{0}\n'.format(grouped.size()))
+    # adding an axis with np.newaxis
+    print('arr.shape: {0}'.format(arr.shape))
+    arr = arr[:, np.newaxis]
+    print('arr[:, np.newaxis].shape : {0}'.format(arr.shape))
+    print('')
+
+    # removing an axis with np.ravel
+    print('arr.shape: {0}'.format(arr.shape))
+    print('np.ravel(arr).shape: {0}'.format(np.ravel(arr).shape))
+    print('')
+
+    # removing an axis with np.squeeze
+    print('arr.shape: {0}'.format(arr.shape))
+    print('np.squeeze(arr, axis = 1).shape: {0}'.format(np.squeeze(arr, axis = 1).shape))
+    print('')
+
+    # stacking arrays - joining arrays on a new axis
+    arr1 = np.ravel(arr)
+    arr2 = np.linspace(1, 5, 17)
+    print('arr1.shape: {0}'.format(arr1.shape))
+    print('arr2.shape: {0}'.format(arr2.shape))
+    print('np.stack([arr1, arr2], axis = 0).shape: {0}'.format(np.stack([arr1, arr2], axis = 0).shape))
+    print('np.stack([arr1, arr2], axis = 1).shape: {0}'.format(np.stack([arr1, arr2], axis = 1).shape))
+    print('np.vstack([arr1, arr2]).shape: {0}'.format(np.vstack([arr1, arr2]).shape))
+    print('np.hstack([arr1, arr2]).shape: {0}'.format(np.hstack([arr1, arr2]).shape))
+    print('np.hstack([arr1[:, np.newaxis], arr2[:, np.newaxis]]).shape: {0}'\
+        .format(np.hstack([arr1[:, np.newaxis], arr2[:, np.newaxis]]).shape))
+    print('')
+
+    # concatenating arrays - joining arrays on an existing axis
+    arr1 = arr1[:, np.newaxis]
+    arr2 = arr2[:, np.newaxis]
+    print('arr1.shape: {0}'.format(arr1.shape))
+    print('arr2.shape: {0}'.format(arr2.shape))
+    print('np.concatenate([arr1,arr2], axis = 0).shape: {0}'.format(np.concatenate([arr1,arr2], axis = 0).shape))
+    print('np.concatenate([arr1,arr2], axis = 1).shape: {0}'.format(np.concatenate([arr1,arr2], axis = 1).shape))
+    print('')
