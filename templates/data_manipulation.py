@@ -1,5 +1,4 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: df.gt,ge,eq,lt,le
 # TODO: zip
 # TODO: np.apply_along_axis
 # TODO: np.reshape
@@ -119,6 +118,15 @@ if __name__ == '__main__':
     df2 = load()
     df2 = df2.mask(df2.loc[:,'sepal_length'] > 5)
     print(df2)
+
+    # relational operators in pandas.DataFrame
+    df2 = load()
+    df2 = df2.loc[:, df2.select_dtypes([np.number]).columns]
+    df2.lt(5)   # < 5
+    df2.eq(5)   # == 5
+    df2.gt(5)   # > 5
+    df2.le(5)   # <= 5
+    df2.ge(5)   # >= 5
 
     # group by/aggregate the data on a column(s)
     grouped = df.groupby(['class'])
