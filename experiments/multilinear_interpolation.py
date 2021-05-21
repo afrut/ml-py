@@ -4,6 +4,17 @@
 import subprocess as sp
 import numpy as np
 
+# limit-check the input vector against the table
+def limitcheck(x, table):
+    x = x.copy()
+    xmin = table.min(axis = 0)[0:len(x)]
+    idx = x < xmin
+    x[idx] = xmin[idx]
+    xmax = table.max(axis = 0)[0:len(x)]
+    idx = x > xmax
+    x[idx] = xmax[idx]
+    return x
+
 # compute the change in x
 def computexd(x, x0, x1):
     if x1 - x0 == 0:
@@ -165,100 +176,98 @@ if __name__ == '__main__':
     #sample test vector x = (20.34, 42.22, 66.4)
 
     # loop through different combinations of independent variables and verify
-    x1 = np.linspace(0, 24, 7)
-    x2 = np.linspace(0, 223, 7)
-    x3 = np.linspace(30, 150, 7)
-    for v1 in x1:
-        for v2 in x2:
-            for v3 in x3:
-                # define coordinate of interest
-                x = np.array([v1, v2, v3])
+    for numpt in range(0, 50):
+        x1 = np.linspace(0, 24, numpt)
+        x2 = np.linspace(0, 223, numpt)
+        x3 = np.linspace(30, 150, numpt)
+        for v1 in x1:
+            for v2 in x2:
+                for v3 in x3:
+                    # define coordinate of interest
+                    ox = np.array([v1, v2, v3])
 
-                # limit-check
-                xmin = table.min(axis = 0)[0:len(x)]
-                idx = x < xmin
-                x[idx] = xmin[idx]
-                xmax = table.max(axis = 0)[0:len(x)]
-                idx = x > xmax
-                x[idx] = xmax[idx]
+                    x = limitcheck(ox, table)
 
-                # ----------------------------------------
-                # Find the 2^3 points surrounding the point of interest
-                # c[0][1][0] is a point where the value of the second coordinate is greater
-                # than the 2nd coordinate of the point of interest
-                # ----------------------------------------
-                c = np.empty((2, 2, 2), dtype = object)
-                search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
-                search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
-                search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
-                c[0][0][0] = np.ravel(search)
-                #print(c[0][0][0])
+                    # ----------------------------------------
+                    # Find the 2^3 points surrounding the point of interest
+                    # c[0][1][0] is a point where the value of the second coordinate is greater
+                    # than the 2nd coordinate of the point of interest
+                    # ----------------------------------------
+                    c = np.empty((2, 2, 2), dtype = object)
+                    search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
+                    search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
+                    search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
+                    c[0][0][0] = np.ravel(search)
+                    #print(c[0][0][0])
 
-                search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
-                search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
-                search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
-                c[1][0][0] = np.ravel(search)
-                #print(c[1][0][0])
+                    search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
+                    search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
+                    search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
+                    c[1][0][0] = np.ravel(search)
+                    #print(c[1][0][0])
 
-                search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
-                search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
-                search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
-                c[0][1][0] = np.ravel(search)
-                #print(c[0][1][0])
+                    search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
+                    search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
+                    search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
+                    c[0][1][0] = np.ravel(search)
+                    #print(c[0][1][0])
 
-                search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
-                search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
-                search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
-                c[1][1][0] = np.ravel(search)
-                #print(c[1][1][0])
+                    search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
+                    search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
+                    search = search[search[:, 2] == search[search[:, 2] <= x[2], 2].max(), :]
+                    c[1][1][0] = np.ravel(search)
+                    #print(c[1][1][0])
 
-                search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
-                search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
-                search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
-                c[0][0][1] = np.ravel(search)
-                #print(c[0][0][1])
+                    search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
+                    search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
+                    search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
+                    c[0][0][1] = np.ravel(search)
+                    #print(c[0][0][1])
 
-                search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
-                search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
-                search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
-                c[1][0][1] = np.ravel(search)
-                #print(c[1][0][1])
+                    search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
+                    search = search[search[:, 1] == search[search[:, 1] <= x[1], 1].max(), :]
+                    search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
+                    c[1][0][1] = np.ravel(search)
+                    #print(c[1][0][1])
 
-                search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
-                search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
-                search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
-                c[0][1][1] = np.ravel(search)
-                #print(c[0][1][1])
+                    search = table[table[:, 0] == table[table[:, 0] <= x[0] , 0].max(), :]
+                    search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
+                    search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
+                    c[0][1][1] = np.ravel(search)
+                    #print(c[0][1][1])
 
-                search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
-                search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
-                search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
-                c[1][1][1] = np.ravel(search)
-                #print(c[1][1][1])
+                    search = table[table[:, 0] == table[table[:, 0] >= x[0] , 0].min(), :]
+                    search = search[search[:, 1] == search[search[:, 1] >= x[1], 1].min(), :]
+                    search = search[search[:, 2] == search[search[:, 2] >= x[2], 2].min(), :]
+                    c[1][1][1] = np.ravel(search)
+                    #print(c[1][1][1])
 
-                # ----------------------------------------
-                # Interpolate along the first dimension
-                # ----------------------------------------
-                c1 = np.empty((2,2), dtype = object)
-                xd = computexd(x[0], c[0][0][0][0], c[0][0][0][0])
-                c1[0][0] = interp(xd, c[0][0][0][3], c[1][0][0][3])
-                c1[0][1] = interp(xd, c[0][0][1][3], c[1][0][1][3])
-                c1[1][0] = interp(xd, c[0][1][0][3], c[1][1][0][3])
-                c1[1][1] = interp(xd, c[0][1][1][3], c[1][1][1][3])
+                    # ----------------------------------------
+                    # Interpolate along the first dimension
+                    # ----------------------------------------
+                    c1 = np.empty((2,2), dtype = object)
+                    xd = computexd(x[0], c[0][0][0][0], c[1][0][0][0])
+                    c1[0][0] = interp(xd, c[0][0][0][3], c[1][0][0][3])
+                    c1[0][1] = interp(xd, c[0][0][1][3], c[1][0][1][3])
+                    c1[1][0] = interp(xd, c[0][1][0][3], c[1][1][0][3])
+                    c1[1][1] = interp(xd, c[0][1][1][3], c[1][1][1][3])
 
-                # ----------------------------------------
-                # Interpolate along the second dimension
-                # ----------------------------------------
-                c2 = np.empty(2, dtype = object)
-                xd = computexd(x[1], c[0][0][0][1], c[0][0][0][1])
-                c2[0] = interp(xd, c1[0][0], c1[1][0])
-                c2[1] = interp(xd, c1[0][1], c1[1][1])
+                    # ----------------------------------------
+                    # Interpolate along the second dimension
+                    # ----------------------------------------
+                    c2 = np.empty(2, dtype = object)
+                    xd = computexd(x[1], c[0][0][0][1], c[0][1][0][1])
+                    c2[0] = interp(xd, c1[0][0], c1[1][0])
+                    c2[1] = interp(xd, c1[0][1], c1[1][1])
 
-                # ----------------------------------------
-                # Interpolate along the third dimension
-                # ----------------------------------------
-                c3 = None
-                xd = computexd(x[2], c[0][0][0][2], c[0][0][0][2])
-                c3 = interp(xd, c2[0], c2[1])
+                    # ----------------------------------------
+                    # Interpolate along the third dimension
+                    # ----------------------------------------
+                    c3 = None
+                    xd = computexd(x[2], c[0][0][0][2], c[0][0][1][2])
+                    c3 = interp(xd, c2[0], c2[1])
 
-                assert c3 == interpmd(x, table), 'Incorrect interpolated outputs'
+                    # multi-linear interpolation
+                    yval = interpmd(x, table)
+
+                    assert c3 == yval, 'Incorrect interpolated outputs {0:.4f} vs {1:.4f}'.format(c3, yval)
