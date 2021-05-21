@@ -1,7 +1,5 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: mask
 # TODO: df.gt,ge,eq,lt,le
-# TODO: df.where
 # TODO: zip
 # TODO: np.apply_along_axis
 # TODO: np.reshape
@@ -19,15 +17,19 @@ def threshold(a: float):
     else:
         return a
 
-if __name__ == '__main__':
-    sp.call('cls', shell = True)
-
-    # load some data
+def load():
     with open('.\\data\\iris\\iris.data', 'rt') as fl:
         df = pd.read_csv(fl
             ,names = ['sepal_length','sepal_width','petal_length','petal_width','class']
             ,header = None
             ,index_col = False)
+        return df
+
+if __name__ == '__main__':
+    sp.call('cls', shell = True)
+
+    # load some data
+    df = load()
 
     # get all numeric columns
     numeric = df.select_dtypes([np.number]).columns
@@ -108,6 +110,16 @@ if __name__ == '__main__':
         ,copy = False)
     print('merged dataframe:\n{0}\n'.format(df))
 
+    # replace all rows in the DataFrame where sepal_length <= 5 with nan
+    df2 = load()
+    df2 = df2.where(df2.loc[:,'sepal_length'] > 5)
+    print(df2)
+
+    # replace all rows in the DataFrame where sepal_length > 5 with nan
+    df2 = load()
+    df2 = df2.mask(df2.loc[:,'sepal_length'] > 5)
+    print(df2)
+
     # group by/aggregate the data on a column(s)
     grouped = df.groupby(['class'])
     print('number of elements in each class:\n{0}\n'.format(grouped.size()))
@@ -174,4 +186,4 @@ if __name__ == '__main__':
     reversecol = combinations[:, [x for x in range(combinations.shape[1] - 1, -1, -1)]]     # reverse columns of array
     transpose = reversecol.T                                                                # get transpose of array
     idx = np.lexsort(transpose)                                                             # sort
-    print(combinations[idx])
+    print('Sorted array:\n{0}\n'.format(combinations[idx]))
