@@ -3,10 +3,8 @@
 # TODO: df.gt,ge,eq,lt,le
 # TODO: df.where
 # TODO: zip
-# TODO: np.meshgrid
 # TODO: np.apply_along_axis
 # TODO: np.reshape
-# TODO: np.array(np.meshgrid([1, 2, 3], [4, 5], [6, 7])).T.reshape(-1,3) LINEAR
 # TODO: itertools.permutation
 # TODO: itertools.combination
 import subprocess as sp
@@ -160,3 +158,20 @@ if __name__ == '__main__':
     print('np.concatenate([arr1,arr2], axis = 0).shape: {0}'.format(np.concatenate([arr1,arr2], axis = 0).shape))
     print('np.concatenate([arr1,arr2], axis = 1).shape: {0}'.format(np.concatenate([arr1,arr2], axis = 1).shape))
     print('')
+
+    # generating every combination of elements between multiple sequences
+    x1 = [1,2,3]
+    x2 = [4,5]
+    x3 = [6,7,8,9,10]
+    print('x1: {0}'.format(x1))
+    print('x2: {0}'.format(x2))
+    print('x3: {0}'.format(x3))
+    sequences = [x1,x2,x3]
+    combinations = np.array(np.meshgrid(*sequences)).T.reshape(-1,len(sequences))
+    print('All combinations:\n{0}\n'.format(combinations))
+
+    # sort an array by its first column, then second column, third column, ...
+    reversecol = combinations[:, [x for x in range(combinations.shape[1] - 1, -1, -1)]]     # reverse columns of array
+    transpose = reversecol.T                                                                # get transpose of array
+    idx = np.lexsort(transpose)                                                             # sort
+    print(combinations[idx])
