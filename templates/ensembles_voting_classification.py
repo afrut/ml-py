@@ -32,7 +32,7 @@ if __name__ == '__main__':
     estimators.append(('svm', svm.SVC()))
 
     # create voting ensemble model
-    ensemble = ensemble.VotingClassifier(estimators)
-    results = sm.cross_val_score(ensemble, X, y, cv = cvsplitter)
+    model = ensemble.VotingClassifier(estimators)
+    results = sm.cross_val_score(model, X, y, cv = cvsplitter)
     print('Voting ensemble accuracy mean: {0:.4f}'.format(results.mean()))
     print('Voting ensemble accuracy std: {0:.4f}'.format(results.std()))

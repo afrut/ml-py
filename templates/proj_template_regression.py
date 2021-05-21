@@ -1,4 +1,6 @@
 #exec(open('templates\\proj_template_regression.py').read())
+# TODO: extend with polynomials
+# TODO: feature selection pipeline
 # TODO: add more models; refer to sklearn api
 # TODO: use nested gridsearch
 import subprocess as sp
@@ -19,6 +21,31 @@ import sklearn.kernel_ridge as kr
 import sklearn.gaussian_process as gp
 import sklearn.cross_decomposition as cd
 import sklearn.neural_network as nn
+
+# function for tuning hyperparameters of an estimator in a pipeline
+def tune(name: str
+    ,ppl: pipeline.Pipeline
+    ,params: dict
+    ,Xtrain: np.array
+    ,ytrain: np.array
+    ,args: dict) -> dict:
+    if len(params) > 0:
+        param_grid = dict()
+        for tpl in params.items():
+            hyperparameter = tpl[0]
+            values = tpl[1]
+            param_grid[name + '__' + hyperparameter] = values
+        search = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
+        search.fit(Xtrain, ytrain)
+
+        # add best hyperparameter value to list of arguments
+        newargs = args.copy()
+        for tpl in params.items():
+            hyperparameter = tpl[0]
+            newargs[hyperparameter] = search.best_params_[name + '__' + hyperparameter]
+        return newargs
+    else:
+        return None
 
 if __name__ == '__main__':
     sp.call('cls', shell = True)
@@ -212,6 +239,7 @@ if __name__ == '__main__':
         name = entry[0]
         model = entry[1][0]
         args = entry[1][1]
+        params = entry[1][2]
 
         # ----------------------------------------
         # pipeline for current model without scaling
@@ -221,23 +249,9 @@ if __name__ == '__main__':
             ppl = pipeline.Pipeline([(name, model(**args))])
 
             # tune hyperparameter for current pipeline
-            params = entry[1][2]
             print('tuning hyperparameters - ', end = '')
-            if len(params) > 0:
-                param_grid = dict()
-                for tpl in params.items():
-                    hyperparameter = tpl[0]
-                    values = tpl[1]
-                    param_grid[name + '__' + hyperparameter] = values
-                search = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
-                search.fit(Xtrain, ytrain)
-
-                # add best hyperparameter value to list of arguments
-                newargs = args.copy()
-                for tpl in params.items():
-                    hyperparameter = tpl[0]
-                    newargs[hyperparameter] = search.best_params_[name + '__' + hyperparameter]
-
+            newargs = tune(name, ppl, params, Xtrain, ytrain, args)
+            if newargs is not None:
                 # recreate pipeline with new argument and add to list of pipelines to try
                 ppl = pipeline.Pipeline([(name, model(**newargs))])
 
@@ -252,23 +266,9 @@ if __name__ == '__main__':
         ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
         
         # tune hyperparameter for current pipeline
-        params = entry[1][2]
         print('tuning hyperparameters - ', end = '')
-        if len(params) > 0:
-            param_grid = dict()
-            for tpl in params.items():
-                hyperparameter = tpl[0]
-                values = tpl[1]
-                param_grid[name + '__' + hyperparameter] = values
-            search = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
-            search.fit(Xtrain, ytrain)
-
-            # add best hyperparameter value to list of arguments
-            newargs = args.copy()
-            for tpl in params.items():
-                hyperparameter = tpl[0]
-                newargs[hyperparameter] = search.best_params_[name + '__' + hyperparameter]
-
+        newargs = tune(name, ppl, params, Xtrain, ytrain, args)
+        if newargs is not None:
             # recreate pipeline with new argument and add to list of pipelines to try
             ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**newargs))])
 
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     plt.close('all')
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    plt.boxplot(scores)
+    ax.boxplot(scores)
     ax.set_xticklabels(pipelinenames)
     ax.set_xlabel('Algorithm')
     ax.set_ylabel('Mean Absolute Error')
@@ -311,17 +311,13 @@ if __name__ == '__main__':
         ticklabel.set_fontsize(12)                  # float
 
     fig.tight_layout()
-
-    # table of results
-    scores = np.array(scores)
-    dfScores = pd.DataFrame(index = pipelinenames)
-    dfScores['mean'] = np.mean(scores, axis = 1)
-    dfScores['std'] = np.std(scores, ddof = 1, axis = 1)
-    print('Mean and standard deviation of MSE for different algorithms:')
-    print(dfScores.sort_values(by = ['mean']))
-
     plt.show()
     plt.close('all')
 
-# TODO: extend with polynomials
-# TODO: feature selection pipeline
+    # table of results
+    arrscores = np.array(scores)
+    dfScores = pd.DataFrame(index = pipelinenames)
+    dfScores['mean'] = np.mean(arrscores, axis = 1)
+    dfScores['std'] = np.std(arrscores, ddof = 1, axis = 1)
+    print('Mean and standard deviation of MSE for different algorithms:')
+    print(dfScores.sort_values(by = ['mean']))
