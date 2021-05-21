@@ -3,6 +3,12 @@
 # TODO: df.gt,ge,eq,lt,le
 # TODO: df.where
 # TODO: zip
+# TODO: np.meshgrid
+# TODO: np.apply_along_axis
+# TODO: np.reshape
+# TODO: np.array(np.meshgrid([1, 2, 3], [4, 5], [6, 7])).T.reshape(-1,3) LINEAR
+# TODO: itertools.permutation
+# TODO: itertools.combination
 import subprocess as sp
 import pandas as pd
 import numpy as np

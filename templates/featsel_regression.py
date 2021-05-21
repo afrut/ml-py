@@ -1,4 +1,5 @@
 #exec(open('templates\\featsel_regression.py').read())
+# TODO: go through api and use regression algorithms with automatic feature selection
 import subprocess as sp
 import pandas as pd
 import sklearn.feature_selection as sfs

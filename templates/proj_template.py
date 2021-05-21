@@ -16,6 +16,7 @@
 # a) Data Cleaning
 # b) Feature Selection
 # c) Data Transforms
+#    - Does transforming affect the algorithm's performance?
 
 # 4. Evaluate Algorithms
 # a) Split-out validation dataset
