@@ -30,7 +30,7 @@ if __name__ == '__main__':
     ax.set_title('Iris Dataset Boxplot')
 
     # save the plot as a file
-    plt.savefig('.\\iris_boxplot.png', format = 'png')
+    fig.savefig('.\\iris_boxplot.png', format = 'png')
     os.remove('.\\iris_boxplot.png')
 
     # show the plot

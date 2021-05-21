@@ -52,7 +52,7 @@ if __name__ == '__main__':
     fig.tight_layout()
 
     # save the plot as a file
-    plt.savefig('.\\simple_scatter.png', format = 'png')
+    fig.savefig('.\\simple_scatter.png', format = 'png')
     os.remove('.\\simple_scatter.png')
 
     # show the plot

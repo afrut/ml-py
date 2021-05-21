@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # boxplot of results
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
-    plt.boxplot(scores)
+    ax.boxplot(scores)
     ax.set_xticklabels(algs)
     ax.set_xlabel('Algorithm')
     ax.set_ylabel('Accuracy')

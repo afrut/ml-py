@@ -59,7 +59,7 @@ if __name__ == '__main__':
     fig.tight_layout()
 
     # save the plot as a file
-    plt.savefig('.\\iris_sepal_hist.png', format = 'png')
+    fig.savefig('.\\iris_sepal_hist.png', format = 'png')
     os.remove('.\\iris_sepal_hist.png')
 
     # show the plot

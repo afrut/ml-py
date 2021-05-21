@@ -48,7 +48,7 @@ if __name__ == '__main__':
     fig.tight_layout()
 
     # save the plot as a file
-    plt.savefig('.\\plot_annotate.png', format = 'png')
+    fig.savefig('.\\plot_annotate.png', format = 'png')
     os.remove('.\\plot_annotate.png')
 
     # show the plot

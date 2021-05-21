@@ -63,7 +63,7 @@ if __name__ == '__main__':
         ticklabel.set_fontsize(10)
 
     # save the plot as a file
-    plt.savefig('.\\iris_heatmap.png', format = 'png')
+    fig.savefig('.\\iris_heatmap.png', format = 'png')
     os.remove('.\\iris_heatmap.png')
 
     # show the plot

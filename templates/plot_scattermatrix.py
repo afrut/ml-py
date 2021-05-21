@@ -38,7 +38,7 @@ if __name__ == '__main__':
     fig.suptitle("Iris Scatter Matrix Plot")
 
     # save the plot as a file
-    plt.savefig('.\\iris_scattermatrix.png', format = 'png')
+    fig.savefig('.\\iris_scattermatrix.png', format = 'png')
     os.remove('.\\iris_scattermatrix.png')
 
     # show the plot
