@@ -1,11 +1,10 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: itertools.permutation
-# TODO: itertools.combination
 import subprocess as sp
 import pandas as pd
 import numpy as np
 import random
 import math
+import itertools
 
 def func(a: np.array):
     return (2 * a[0]) + math.sin(a[1]) + math.sqrt(a[2]) + a[3]
