@@ -1,12 +1,14 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: np.apply_along_axis
-# TODO: np.reshape
 # TODO: itertools.permutation
 # TODO: itertools.combination
 import subprocess as sp
 import pandas as pd
 import numpy as np
 import random
+import math
+
+def func(a: np.array):
+    return (2 * a[0]) + math.sin(a[1]) + math.sqrt(a[2]) + a[3]
 
 def threshold(a: float):
     "Return 0 if value is greater than 5, else return value"
@@ -200,3 +202,22 @@ if __name__ == '__main__':
     transpose = reversecol.T                                                                # get transpose of array
     idx = np.lexsort(transpose)                                                             # sort
     print('Sorted array:\n{0}\n'.format(combinations[idx]))
+
+    # replace all values < 3 with 0
+    arr1 = df2.values
+    arr1 = np.where(arr1 < 3, 0, arr1)
+    print('Any value < 3 replaced by 0:\n{0}\n'.format(arr1))
+
+    # apply a custom function along an axis of an array
+    # axis = 0 means loop through every columna and apply the function on rows
+    # axis = 1 means loop through every row and apply the function on columns
+    arr = df2.values
+    arr = np.apply_along_axis(func1d = func, axis = 1, arr = arr1)
+    print('Function applied on every row:\n{0}\n'.format(arr))
+
+    # reshape an array
+    arr = np.arange(0,12,1)
+    print('Original array:\n{0}'.format(arr))
+    print('Reshape into 4 rows and 3 columns:\n{0}'.format(arr.reshape(4, 3)))
+    print('Reshape into 6 rows and 2 columns:\n{0}'.format(arr.reshape(6, 2)))
+    print('Reshape into 2 rows and balance of columns:\n{0}'.format(arr.reshape(2, -1)))
