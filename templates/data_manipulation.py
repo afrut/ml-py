@@ -1,5 +1,4 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
-# TODO: zip
 # TODO: np.apply_along_axis
 # TODO: np.reshape
 # TODO: itertools.permutation
@@ -29,6 +28,12 @@ if __name__ == '__main__':
 
     # load some data
     df = load()
+
+    # using zip to pair elements of 2 different tuples
+    # zip takes a variable number of sequences as arguments
+    # it is possible to pass a single sequence of sequences ls by using zip(*ls)
+    ls = list(zip((1,2,3), (4,5,6)))        # ls = [(1, 4), (2, 5), (3, 6)]
+    ls = list(zip(*ls))                     # ls = [(1, 2, 3), (4, 5, 6)]
 
     # get all numeric columns
     numeric = df.select_dtypes([np.number]).columns
