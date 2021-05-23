@@ -18,6 +18,7 @@ import sklearn.gaussian_process as gp
 import sklearn.cross_decomposition as cd
 import sklearn.neural_network as nn
 import sklearn.isotonic as si
+import sklearn.metrics as metrics
 from sklearn.experimental import enable_hist_gradient_boosting
 
 # function for tuning hyperparameters of an estimator in a pipeline
@@ -313,6 +314,7 @@ if __name__ == '__main__':
         scores.append(score)
         pipelinenames.append(entry[0])
         print('{0:.4f} - {1:.4f}'.format(np.mean(score), np.std(score, ddof = 1)))
+    print('')
 
     # boxplot of results
     plt.close('all')
@@ -335,10 +337,59 @@ if __name__ == '__main__':
     plt.show()
     plt.close('all')
 
-    # table of results
+    # table of results for cross validation
     arrscores = np.array(scores)
     dfScores = pd.DataFrame(index = pipelinenames)
     dfScores['mean'] = np.mean(arrscores, axis = 1)
     dfScores['std'] = np.std(arrscores, ddof = 1, axis = 1)
-    print('Mean and standard deviation of MSE for different algorithms:')
+    print('Mean and standard deviation of MAE for different algorithms:')
     print(dfScores.sort_values(by = ['mean']))
+    print('')
+
+    # table of results on validation set/holdout set
+    scores = list()
+    pipelinenames = list()
+    scorer = metrics.get_scorer(scoring)
+    print('Validation set scoring:')
+    for entry in pipelines.items():
+        name = entry[0]
+        print('    {0:<20}'.format(name), end = '')
+        ppl = entry[1]
+        ppl.fit(Xtrain, ytrain)
+        score = -1 * scorer(ppl, Xvalid, yvalid)
+        scores.append(score)
+        pipelinenames.append(entry[0])
+        print('{0:.4f}'.format(score))
+    print('')
+
+    # table of results for validation set/holdout set
+    arrscoresvalid = np.array(scores)
+    dfScoresValid = pd.DataFrame(index = pipelinenames)
+    dfScoresValid['mae'] = arrscoresvalid
+    print('MAE for different algorithms:')
+    print(dfScoresValid.sort_values(by = ['mae']))
+    print('')
+
+    # table of results on entire dataset
+    scores = list()
+    pipelinenames = list()
+    scorer = metrics.get_scorer(scoring)
+    print('All data scoring:')
+    for entry in pipelines.items():
+        name = entry[0]
+        print('    {0:<20}'.format(name), end = '')
+        ppl = entry[1]
+        ppl.fit(X, y)
+        score = -1 * scorer(ppl, X, y)
+        scores.append(score)
+        pipelinenames.append(entry[0])
+        print('{0:.4f}'.format(score))
+    print('')
+
+    # table of results on entire dataset
+    arrscoresall = np.array(scores)
+    dfScoresAll = pd.DataFrame(index = pipelinenames)
+    dfScoresAll['mae'] = arrscoresall
+    print('MAE for different algorithms:')
+    print(dfScoresAll.sort_values(by = ['mae']))
+    print('')
