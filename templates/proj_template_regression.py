@@ -1,7 +1,4 @@
 #exec(open('templates\\proj_template_regression.py').read())
-# TODO: use nested gridsearch
-# TODO: feature selection pipeline
-# TODO: extend with polynomials
 import subprocess as sp
 import numpy as np
 import pickle as pk
@@ -263,7 +260,10 @@ if __name__ == '__main__':
         params = entry[1][2]
 
         # ----------------------------------------
-        # pipeline for current model without scaling
+        # Pipeline for current model without scaling
+        # Tune hyperparameter on entire training set. Then use best hyperparameter
+        # value in cross-validation. Alternatively, use nested hyperparameter
+        # tuning with cross-validation to estimate generalization performance
         # ----------------------------------------
         if name != 'SGD':   # SGD always needs scaling
             print('    Creating pipeline for {0: <16} - '.format(name), end = '')
