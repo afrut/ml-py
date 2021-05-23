@@ -1,6 +1,5 @@
 #exec(open('.\\experiments\\multilinear_interpolation.py').read())
 # naive implementation of multilinear interpolation
-# TODO: add limit-checking
 import subprocess as sp
 import numpy as np
 

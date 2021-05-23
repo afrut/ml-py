@@ -1,6 +1,5 @@
 #exec(open('templates\\modelsel_crossval.py').read())
 # model evaluation by k-fold cross-validation
-# TODO: stratified kfold
 import subprocess as sp
 import numpy as np
 import pickle as pk
