@@ -1,8 +1,7 @@
 #exec(open('templates\\proj_template_regression.py').read())
-# TODO: extend with polynomials
-# TODO: feature selection pipeline
-# TODO: add more models; refer to sklearn api
 # TODO: use nested gridsearch
+# TODO: feature selection pipeline
+# TODO: extend with polynomials
 import subprocess as sp
 import numpy as np
 import pickle as pk
@@ -21,6 +20,8 @@ import sklearn.kernel_ridge as kr
 import sklearn.gaussian_process as gp
 import sklearn.cross_decomposition as cd
 import sklearn.neural_network as nn
+import sklearn.isotonic as si
+from sklearn.experimental import enable_hist_gradient_boosting
 
 # function for tuning hyperparameters of an estimator in a pipeline
 def tune(name: str
@@ -191,6 +192,7 @@ if __name__ == '__main__':
     # ----------------------------------------
     # define estimator parameters
     # format: models[name] = (constructor, constructor_args, hyperparameter_grid)
+    # TODO: comment/uncomment as needed
     models = dict()
     models['LR'] = (slm.LinearRegression, {}, {})
     models['RIDGE'] = (slm.Ridge, {'random_state': seed}, {'alpha': np.logspace(-3, 3, 7)})
@@ -200,9 +202,13 @@ if __name__ == '__main__':
     #models['MTEN'] = (slm.MultiTaskElasticNet, {}, {})
     models['LARS'] = (slm.Lars, {'random_state': seed}, {})
     models['LASSOLARS'] = (slm.LassoLars, {'random_state': seed}, {})
+    #models['ISOR'] = (si.IsotonicRegression, {}, {})
     models['OMP'] = (slm.OrthogonalMatchingPursuit, {}, {})
     models['BRIDGE'] = (slm.BayesianRidge, {}, {})
+    models['ARD'] = (slm.ARDRegression, {}, {})
     models['TW'] = (slm.TweedieRegressor, {'max_iter': 10000}, {})
+    models['POISSON'] = (slm.PoissonRegressor, {'max_iter': 10000}, {})
+    #models['GAMMA'] = (slm.GammaRegressor, {}, {})
     models['SGD'] = (slm.SGDRegressor, {}, {}) # always standard-scale this
     models['PA'] = (slm.PassiveAggressiveRegressor, {}, {})
     models['HUBER'] = (slm.HuberRegressor, {'max_iter': 10000}, {})
@@ -212,10 +218,15 @@ if __name__ == '__main__':
     models['GPR'] = (gp.GaussianProcessRegressor, {'random_state': seed}, {})
     models['PLS'] = (cd.PLSRegression, {}, {}) # don't include this in the voting regressor
     models['KNN'] = (neighbors.KNeighborsRegressor, {}, {})
+    #models['RADIUSNN'] = (neighbors.RadiusNeighborsRegressor, {}, {})
     models['CART'] = (tree.DecisionTreeRegressor, {}, {})
     models['SVM'] = (svm.SVR, {}, {})
+    #models['LSVM'] = (svm.LinearSVR, {'max_iter': 100000}, {})
+    models['TREE'] = (tree.DecisionTreeRegressor, {}, {})
+    models['BAGTREE'] = (ensemble.BaggingRegressor, {'random_state': seed, 'base_estimator': tree.DecisionTreeRegressor(), 'n_estimators': 30}, {})
     models['AB'] = (ensemble.AdaBoostRegressor, {'random_state': seed}, {})
     models['GBM'] = (ensemble.GradientBoostingRegressor, {'random_state': seed}, {})
+    models['HISTGBM'] = (ensemble.HistGradientBoostingRegressor, {'random_state': seed}, {})
     models['RF'] = (ensemble.RandomForestRegressor, {'random_state': seed}, {})
     models['ET'] = (ensemble.ExtraTreesRegressor, {'random_state': seed}, {})
     models['NN'] = (nn.MLPRegressor, {'max_iter': 10000, 'random_state': seed}, {})
@@ -229,6 +240,16 @@ if __name__ == '__main__':
         if name != 'PLS' and name != 'SGD':
             estimators.append((name, model(**args)))
     models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators}, {})
+
+    # create a stacking regressor out of all the regressors
+    estimators = list()
+    for entry in models.items():
+        name = entry[0]
+        model = entry[1][0]
+        args = entry[1][1]
+        if name != 'PLS' and name != 'SGD':
+            estimators.append((name, model(**args)))
+    models['STACK'] = (ensemble.StackingRegressor, {'estimators': estimators}, {})
 
     # ----------------------------------------
     # Pipeline definition
