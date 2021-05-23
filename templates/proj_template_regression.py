@@ -159,6 +159,7 @@ if __name__ == '__main__':
     # ----------------------------------------
     # Specify variables and target
     # ----------------------------------------
+    # TODO: set the target variable here
     ycols = ['PRICE']
     xcolsnumeric = list(set(df.select_dtypes([np.number]).columns) - set(ycols))
     xcolsnonnumeric = list(set(df.select_dtypes([object]).columns) - set(ycols))
