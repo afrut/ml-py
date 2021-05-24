@@ -1,4 +1,5 @@
 #exec(open('templates\\proj_template_regression.py').read())
+# TODO: list out hyperparameters
 import subprocess as sp
 import numpy as np
 import pickle as pk
@@ -20,31 +21,6 @@ import sklearn.neural_network as nn
 import sklearn.isotonic as si
 import sklearn.metrics as metrics
 from sklearn.experimental import enable_hist_gradient_boosting
-
-# function for tuning hyperparameters of an estimator in a pipeline
-def tune(name: str
-    ,ppl: pipeline.Pipeline
-    ,params: dict
-    ,Xtrain: np.array
-    ,ytrain: np.array
-    ,args: dict) -> dict:
-    if len(params) > 0:
-        param_grid = dict()
-        for tpl in params.items():
-            hyperparameter = tpl[0]
-            values = tpl[1]
-            param_grid[name + '__' + hyperparameter] = values
-        search = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
-        search.fit(Xtrain, ytrain)
-
-        # add best hyperparameter value to list of arguments
-        newargs = args.copy()
-        for tpl in params.items():
-            hyperparameter = tpl[0]
-            newargs[hyperparameter] = search.best_params_[name + '__' + hyperparameter]
-        return newargs
-    else:
-        return None
 
 if __name__ == '__main__':
     sp.call('cls', shell = True)
@@ -194,13 +170,13 @@ if __name__ == '__main__':
     # TODO: comment/uncomment as needed
     models = dict()
     models['LR'] = (slm.LinearRegression, {}, {})
-    models['RIDGE'] = (slm.Ridge, {'random_state': seed}, {'alpha': np.logspace(-3, 3, 7)})
-    models['LASSO'] = (slm.Lasso, {'random_state': seed}, {})
+    models['RIDGE'] = (slm.Ridge, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
+    models['LASSO'] = (slm.Lasso, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
     #models['MTLASSO'] = (slm.MultiTaskLasso, {}, {})
-    models['EN'] = (slm.ElasticNet, {'random_state': seed}, {})
+    models['EN'] = (slm.ElasticNet, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
     #models['MTEN'] = (slm.MultiTaskElasticNet, {}, {})
     models['LARS'] = (slm.Lars, {'random_state': seed}, {})
-    models['LASSOLARS'] = (slm.LassoLars, {'random_state': seed}, {})
+    models['LASSOLARS'] = (slm.LassoLars, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
     #models['ISOR'] = (si.IsotonicRegression, {}, {})
     models['OMP'] = (slm.OrthogonalMatchingPursuit, {}, {})
     models['BRIDGE'] = (slm.BayesianRidge, {}, {})
@@ -271,12 +247,12 @@ if __name__ == '__main__':
             print('    Creating pipeline for {0: <16} - '.format(name), end = '')
             ppl = pipeline.Pipeline([(name, model(**args))])
 
-            # tune hyperparameter for current pipeline
-            print('tuning hyperparameters - ', end = '')
-            newargs = tune(name, ppl, params, Xtrain, ytrain, args)
-            if newargs is not None:
-                # recreate pipeline with new argument and add to list of pipelines to try
-                ppl = pipeline.Pipeline([(name, model(**newargs))])
+            # add in hyperparameter tuning if applicable
+            if len(params) > 0:
+                param_grid = dict()
+                for tpl in params.items():
+                    param_grid[name + '__' + tpl[0]] = tpl[1]
+                ppl = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
 
             # add pipeline to collection of piplines to try
             pipelines[name] = ppl
@@ -287,13 +263,13 @@ if __name__ == '__main__':
         # ----------------------------------------
         print('    Creating pipeline for {0: <16} - '.format('Scaled' + name), end = '')
         ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
-        
-        # tune hyperparameter for current pipeline
-        print('tuning hyperparameters - ', end = '')
-        newargs = tune(name, ppl, params, Xtrain, ytrain, args)
-        if newargs is not None:
-            # recreate pipeline with new argument and add to list of pipelines to try
-            ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**newargs))])
+
+        # add in hyperparameter tuning if applicable
+        if len(params) > 0:
+            param_grid = dict()
+            for tpl in params.items():
+                param_grid[name + '__' + tpl[0]] = tpl[1]
+            ppl = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
 
         # add pipeline to collection of piplines to try
         pipelines['Scaled' + name] = ppl
