@@ -1,4 +1,4 @@
-#exec(open('.\\templates\\plot_histogram.py').read())
+#exec(open('.\\templates\\plot_barplot.py').read())
 import subprocess as sp
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -18,16 +18,12 @@ if __name__ == '__main__':
             ,header = None
             ,index_col = False)
 
-    # specify a series for which a histogram is to be made
-    sepal = df.loc[:, 'sepal_length']
+    # get non-numeric data
+    data = df.loc[:, df.select_dtypes([object]).columns].values.astype('str')
 
-    # specify bins by bin width
-    binWdt = 0.5
-    bins = np.arange(sepal.min(), sepal.max() + binWdt, binWdt)
-
-    # specify bins by number of bins
-    binNum = 12
-    #bins = np.linspace(sepal.min(), sepal.max(), binNum)
+    # count unique values
+    valsunq, counts = np.unique(data, return_counts = True)
+    xticks = np.array([x for x in range(len(valsunq))])
 
     # create a new figure
     fig = plt.figure(figsize = (14.4, 9))
@@ -36,31 +32,32 @@ if __name__ == '__main__':
     ax = fig.add_subplot(1, 1, 1)
 
     # create the boxplot with seaborn, return values and bins
-    counts, bins, _ = ax.hist(sepal, bins = bins)
+    barcontainer = ax.bar(x = xticks, height = counts)
 
     # title of the plot
-    ax.set_title('Iris Sepal Length Histogram')
+    ax.set_title('Count of Classes')
 
     # set the x-axis tick marks and labels
-    ax.set_xticks(bins)
-    ax.set_xticklabels(bins)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(valsunq)
 
-    # set minimum and maximum y limits
-    #ax.set_ylim(lsVals.min(), lsVals.max())
+    # format xticklabels
+    for ticklabel in ax.get_xticklabels():
+        ticklabel.set_horizontalalignment('right')
+        ticklabel.set_rotation_mode('anchor')
+        ticklabel.set_rotation(30)
+        ticklabel.set_fontsize(10)
 
     # x and y-axis labels
-    ax.set_xlabel('Sepal Lengths')
+    ax.set_xlabel('Classes')
     ax.set_ylabel('Counts')
-
-    # add a grid
-    ax.grid(linewidth = 0.5)
 
     # minimize margins and whitespace
     fig.tight_layout()
 
     # save the plot as a file
-    fig.savefig('.\\iris_sepal_hist.png', format = 'png')
-    os.remove('.\\iris_sepal_hist.png')
+    fig.savefig('.\\iris_class_counts.png', format = 'png')
+    os.remove('.\\iris_class_counts.png')
 
     # show the plot
     plt.show()
