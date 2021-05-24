@@ -18,7 +18,10 @@ if __name__ == '__main__':
     noise = (np.random.rand(len(x)) * 2) - 1
     y = (1.3 * x) + np.sin(1.5 * x) + noise
 
+    # create a figure
     fig = plt.figure(figsize = (14.4, 9))
+
+    # add a subplot
     ax = fig.add_subplot(1, 1, 1)
 
     # create scatter plot
@@ -28,12 +31,19 @@ if __name__ == '__main__':
         ,color = (130/255, 150/255, 200/255, 1)
         ,marker = None)
 
+    # set title
+    ax.set_title('A simple line plot')
+
+    # x and y axis labels
     ax.set_xlabel('x')
     ax.set_ylabel('y')
-    ax.set_title('A simple line plot')
 
     # minimize margins and whitespace
     fig.tight_layout()
+
+    # save the plot as a file
+    fig.savefig('.\\simple_scatter.png', format = 'png')
+    os.remove('.\\simple_scatter.png')
 
     # define more data
     noise = (np.random.rand(len(x)) * 2) - 1
@@ -46,14 +56,14 @@ if __name__ == '__main__':
         , np.stack([y, y2, (3 * y) - 7], axis = 1)
         ,marker = None
         ,linewidth = 3)
+    ax.set_title('multiple lines in 1 subplot')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
-    ax.set_title('multiple lines in 1 subplot')
     fig.tight_layout()
 
     # save the plot as a file
-    fig.savefig('.\\simple_scatter.png', format = 'png')
-    os.remove('.\\simple_scatter.png')
+    fig.savefig('.\\multiple_lines.png', format = 'png')
+    os.remove('.\\multiple_lines.png')
 
     # show the plot
     plt.show()

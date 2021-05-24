@@ -38,12 +38,12 @@ if __name__ == '__main__':
     # create the boxplot with seaborn, return values and bins
     lsVals, lsBins, _ = ax.hist(sepal, bins = bins)
 
+    # title of the plot
+    ax.set_title('Iris Sepal Length Histogram')
+
     # set the x-axis tick marks and labels
     ax.set_xticks(bins)
     ax.set_xticklabels(bins)
-
-    # add a grid
-    ax.grid(linewidth = 0.5)
 
     # set minimum and maximum y limits
     #ax.set_ylim(lsVals.min(), lsVals.max())
@@ -52,8 +52,8 @@ if __name__ == '__main__':
     ax.set_xlabel('Sepal Lengths')
     ax.set_ylabel('Counts')
 
-    # title of the plot
-    ax.set_title('Iris Sepal Length Histogram')
+    # add a grid
+    ax.grid(linewidth = 0.5)
 
     # minimize margins and whitespace
     fig.tight_layout()

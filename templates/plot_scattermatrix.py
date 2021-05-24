@@ -22,8 +22,13 @@ if __name__ == '__main__':
     numeric = df.select_dtypes([np.number]).columns
     df = df.loc[:, numeric]
 
+    # create a figure
     fig = plt.figure(figsize = (14.4, 9))
+
+    # add a subplot
     ax = fig.add_subplot(1,1,1)
+
+    # create the plot
     axes = pd.plotting.scatter_matrix(df, ax = ax)
 
     # format x and y axis labels
@@ -32,7 +37,7 @@ if __name__ == '__main__':
             ax = axes[x,y]
             ax.xaxis.label.set_rotation(30)
             ax.yaxis.label.set_rotation(0)
-            ax.yaxis.labelpad = 50
+            ax.yaxis.labelpad = 50      # increase the distance from ylabel to yaxis
 
     # title for the whole figure
     fig.suptitle("Iris Scatter Matrix Plot")

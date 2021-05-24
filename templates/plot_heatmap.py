@@ -1,7 +1,6 @@
 #exec(open('.\\templates\\plot_heatmap.py').read())
 import subprocess as sp
 import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 import os
 import numpy as np
@@ -44,23 +43,37 @@ if __name__ == '__main__':
     ax = fig.add_subplot(1,1,1)
 
     # plot the heatmap
-    ax = sns.heatmap(data = dfcorr
-        ,vmin = -1      # minimum value in range
-        ,vmax = 1       # maximum value in range
-        ,annot = True   # label the value
-        ,annot_kws = dict([('fontsize', 6)]))
+    aximg = ax.matshow(dfcorr, vmin = -1, vmax = 1)
+    fig.colorbar(aximg)
+
+    # set plot title
+    ax.set_title('Correlation Heatmap')
 
     # format ticks and labels
+    ax.set_xticks([x for x in range(len(rownames))])
+    ax.set_xticklabels(rownames)
     for ticklabel in ax.get_xticklabels():
         ticklabel.set_rotation_mode(None)
         ticklabel.set_horizontalalignment('center')
         ticklabel.set_rotation(30)
         ticklabel.set_fontsize(10)
+    ax.set_yticks([x for x in range(len(colnames))])
+    ax.set_yticklabels(colnames)
     for ticklabel in ax.get_yticklabels():
         ticklabel.set_rotation_mode(None)
         ticklabel.set_verticalalignment('center')
         ticklabel.set_rotation(30)
         ticklabel.set_fontsize(10)
+
+    # add annotations
+    arrcorr = np.round(dfcorr.values, 2)
+    for row in range(len(rownames)):
+        for col in range(len(colnames)):
+            if not np.isnan(arrcorr[row, col]):
+                text = ax.text(row, col, arrcorr[row, col], ha = 'center', va = 'center', color = 'b')
+
+    # tighten margins
+    fig.tight_layout()
 
     # save the plot as a file
     fig.savefig('.\\iris_heatmap.png', format = 'png')
