@@ -220,3 +220,12 @@ if __name__ == '__main__':
     print('Reshape into 4 rows and 3 columns:\n{0}'.format(arr.reshape(4, 3)))
     print('Reshape into 6 rows and 2 columns:\n{0}'.format(arr.reshape(6, 2)))
     print('Reshape into 2 rows and balance of columns:\n{0}'.format(arr.reshape(2, -1)))
+    print('')
+    
+    # count unique elements in an array
+    df2 = load()
+    arr = df2.loc[:, 'class'].values.astype('str')
+    valsUnq, counts = np.unique(arr, return_counts = True)
+    print('Counts of each class:')
+    for cnt in range(len(valsUnq)):
+        print('    {0}: {1}'.format(valsUnq[cnt], counts[cnt]))
