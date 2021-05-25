@@ -32,12 +32,13 @@ if __name__ == '__main__':
     with open('.\\data\\bostonHousing.pkl', 'rb') as fl:
         df = pk.load(fl)
     # check that there are no missing values
-    assert(np.all(np.logical_not(np.isnan(df.values)))), 'Nan values present'
+    assert(np.all(np.logical_not(df.isna()))), 'Nan values present'
 
     # ----------------------------------------
     # Constants
     # ----------------------------------------
     np.set_printoptions(precision = 4, suppress = True)
+    pd.options.display.float_format = '{:10,.4f}'.format
     seed = 29
 
     # ----------------------------------------
@@ -194,7 +195,6 @@ if __name__ == '__main__':
     models['PLS'] = (cd.PLSRegression, {}, {}) # don't include this in the voting regressor
     models['KNN'] = (neighbors.KNeighborsRegressor, {}, {})
     #models['RADIUSNN'] = (neighbors.RadiusNeighborsRegressor, {}, {})
-    models['CART'] = (tree.DecisionTreeRegressor, {}, {})
     models['SVM'] = (svm.SVR, {}, {})
     #models['LSVM'] = (svm.LinearSVR, {'max_iter': 100000}, {})
     models['TREE'] = (tree.DecisionTreeRegressor, {}, {})
