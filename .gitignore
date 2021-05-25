@@ -5,3 +5,4 @@ png/*
 *.png
 p.cmd
 s.cmd
+experiments/*.pkl
