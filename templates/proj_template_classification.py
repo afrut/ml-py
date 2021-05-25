@@ -1,25 +1,24 @@
-#exec(open('templates\\proj_template_regression.py').read())
-# TODO: list out hyperparameters
+#exec(open('templates\\proj_template_classification.py').read())
 import subprocess as sp
-import numpy as np
-import pickle as pk
 import matplotlib.pyplot as plt
+import pickle as pk
+import numpy as np
 import math
 import pandas as pd
 import sklearn.model_selection as sms
 import sklearn.pipeline as pipeline
-import sklearn.linear_model as slm
-import sklearn.neighbors as neighbors
-import sklearn.svm as svm
-import sklearn.ensemble as ensemble
-import sklearn.tree as tree
 import sklearn.preprocessing as pp
-import sklearn.kernel_ridge as kr
-import sklearn.gaussian_process as gp
-import sklearn.cross_decomposition as cd
-import sklearn.neural_network as nn
-import sklearn.isotonic as si
 import sklearn.metrics as metrics
+import sklearn.gaussian_process as gp
+import sklearn.gaussian_process.kernels as gpk
+import sklearn.linear_model as slm
+import sklearn.naive_bayes as nb
+import sklearn.neighbors as neighbors
+import sklearn.neural_network as nn
+import sklearn.svm as svm
+import sklearn.tree as tree
+import sklearn.discriminant_analysis as da
+import sklearn.ensemble as ensemble
 from sklearn.experimental import enable_hist_gradient_boosting
 
 if __name__ == '__main__':
@@ -29,7 +28,7 @@ if __name__ == '__main__':
     # ----------------------------------------
     # Data loading and formatting
     # ----------------------------------------
-    with open('.\\data\\bostonHousing.pkl', 'rb') as fl:
+    with open('.\\data\\pima.pkl', 'rb') as fl:
         df = pk.load(fl)
     # check that there are no missing values
     assert(np.all(np.logical_not(np.isnan(df.values)))), 'Nan values present'
@@ -136,7 +135,7 @@ if __name__ == '__main__':
     # Specify variables and target
     # ----------------------------------------
     # TODO: set the target variable here
-    ycols = ['PRICE']
+    ycols = ['class']
     xcolsnumeric = list(set(df.select_dtypes([np.number]).columns) - set(ycols))
     xcolsnonnumeric = list(set(df.select_dtypes([object]).columns) - set(ycols))
     xcols = xcolsnumeric + xcolsnonnumeric
@@ -168,64 +167,56 @@ if __name__ == '__main__':
     # define estimator parameters
     # format: models[name] = (constructor, constructor_args, hyperparameter_grid)
     # TODO: comment/uncomment as needed
+
+
     models = dict()
-    models['LR'] = (slm.LinearRegression, {}, {})
-    models['RIDGE'] = (slm.Ridge, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
-    models['LASSO'] = (slm.Lasso, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
-    #models['MTLASSO'] = (slm.MultiTaskLasso, {}, {})
-    models['EN'] = (slm.ElasticNet, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
-    #models['MTEN'] = (slm.MultiTaskElasticNet, {}, {})
-    models['LARS'] = (slm.Lars, {'random_state': seed}, {})
-    models['LASSOLARS'] = (slm.LassoLars, {'random_state': seed}, {'alpha': np.logspace(-6, 6, 11)})
-    #models['ISOR'] = (si.IsotonicRegression, {}, {})
-    models['OMP'] = (slm.OrthogonalMatchingPursuit, {}, {})
-    models['BRIDGE'] = (slm.BayesianRidge, {}, {})
-    models['ARD'] = (slm.ARDRegression, {}, {})
-    models['TW'] = (slm.TweedieRegressor, {'max_iter': 10000}, {})
-    models['POISSON'] = (slm.PoissonRegressor, {'max_iter': 10000}, {})
-    #models['GAMMA'] = (slm.GammaRegressor, {}, {})
-    models['SGD'] = (slm.SGDRegressor, {}, {}) # always standard-scale this
-    models['PA'] = (slm.PassiveAggressiveRegressor, {}, {})
-    models['HUBER'] = (slm.HuberRegressor, {'max_iter': 10000}, {})
-    models['RANSAC'] = (slm.RANSACRegressor, {'random_state': seed}, {})
-    models['TH'] = (slm.TheilSenRegressor, {'random_state': seed}, {})
-    models['KRR'] = (kr.KernelRidge, {}, {})
-    models['GPR'] = (gp.GaussianProcessRegressor, {'random_state': seed}, {})
-    models['PLS'] = (cd.PLSRegression, {}, {}) # don't include this in the voting regressor
-    models['KNN'] = (neighbors.KNeighborsRegressor, {}, {})
-    #models['RADIUSNN'] = (neighbors.RadiusNeighborsRegressor, {}, {})
-    models['CART'] = (tree.DecisionTreeRegressor, {}, {})
-    models['SVM'] = (svm.SVR, {}, {})
-    #models['LSVM'] = (svm.LinearSVR, {'max_iter': 100000}, {})
-    models['TREE'] = (tree.DecisionTreeRegressor, {}, {})
-    models['EXTREE'] = (tree.ExtraTreeRegressor, {}, {})
-    models['BAGTREE'] = (ensemble.BaggingRegressor, {'random_state': seed, 'base_estimator': tree.DecisionTreeRegressor(), 'n_estimators': 30}, {})
-    models['AB'] = (ensemble.AdaBoostRegressor, {'random_state': seed}, {})
-    models['GBM'] = (ensemble.GradientBoostingRegressor, {'random_state': seed}, {})
-    models['HISTGBM'] = (ensemble.HistGradientBoostingRegressor, {'random_state': seed}, {})
-    models['RF'] = (ensemble.RandomForestRegressor, {'random_state': seed}, {})
-    models['ET'] = (ensemble.ExtraTreesRegressor, {'random_state': seed}, {})
-    models['NN'] = (nn.MLPRegressor, {'max_iter': 10000, 'random_state': seed}, {})
+    models['GPC'] = (gp.GaussianProcessClassifier, {'kernel': 1.0 * gpk.RBF(1.0)}, {})
+    models['LR'] = (slm.LogisticRegression, {'max_iter': 1000}, {})
+    models['PAC'] = (slm.PassiveAggressiveClassifier, {}, {})
+    models['PERCPT'] = (slm.Perceptron, {}, {})
+    models['RIDGE'] = (slm.RidgeClassifier, {}, {})
+    models['SGD'] = (slm.SGDClassifier, {}, {})
+    models['BernNB'] = (nb.BernoulliNB, {}, {})
+    #models['CatNB'] = (nb.CategoricalNB, {}, {}) # look into this further, does not allow negative values
+    models['CompNB'] = (nb.ComplementNB, {}, {}) # does not allow negative values
+    models['GaussNB'] = (nb.GaussianNB, {}, {})
+    models['MultinNB'] = (nb.MultinomialNB, {}, {}) # does not allow negative values
+    models['KNN'] = (neighbors.KNeighborsClassifier, {}, {})
+    models['RNN'] = (neighbors.RadiusNeighborsClassifier, {'radius': 10}, {})
+    models['MLP'] = (nn.MLPClassifier, {'max_iter': 10000}, {})
+    models['LinearSVC'] = (svm.LinearSVC, {'max_iter': 10000}, {})
+    models['NuSVC'] = (svm.NuSVC, {}, {})
+    models['SVC'] = (svm.SVC, {}, {})
+    models['TREE'] = (tree.DecisionTreeClassifier, {}, {})
+    models['EXTREE'] = (tree.ExtraTreeClassifier, {}, {})
+    models['QDA'] = (da.QuadraticDiscriminantAnalysis, {}, {})
+    models['LDA'] = (da.LinearDiscriminantAnalysis, {}, {})
+    models['BAGTREE'] = (ensemble.BaggingClassifier, {'random_state': seed, 'base_estimator': tree.DecisionTreeClassifier(), 'n_estimators': 30}, {})
+    models['ET'] = (ensemble.ExtraTreesClassifier, {}, {})
+    models['ADA'] = (ensemble.AdaBoostClassifier, {}, {})
+    models['GBM'] = (ensemble.GradientBoostingClassifier, {}, {})
+    models['RF'] = (ensemble.RandomForestClassifier, {}, {})
+    models['HISTGBM'] = (ensemble.HistGradientBoostingClassifier, {}, {})
 
-    # create a voting regressor out of all the regressors
-    estimators = list()
-    for entry in models.items():
-        name = entry[0]
-        model = entry[1][0]
-        args = entry[1][1]
-        if name != 'PLS' and name != 'SGD':
-            estimators.append((name, model(**args)))
-    models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators}, {})
-
-    # create a stacking regressor out of all the regressors
-    estimators = list()
-    for entry in models.items():
-        name = entry[0]
-        model = entry[1][0]
-        args = entry[1][1]
-        if name != 'PLS' and name != 'SGD':
-            estimators.append((name, model(**args)))
-    models['STACK'] = (ensemble.StackingRegressor, {'estimators': estimators}, {})
+#    #Lcreate a voting regressor out of all the regressors
+#    estimators = list()
+#    for entry in models.items():
+#        name = entry[0]
+#        model = entry[1][0]
+#        args = entry[1][1]
+#        if name != 'PLS' and name != 'SGD':
+#            estimators.append((name, model(**args)))
+#    models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators}, {})
+#
+#    # create a stacking regressor out of all the regressors
+#    estimators = list()
+#    for entry in models.items():
+#        name = entry[0]
+#        model = entry[1][0]
+#        args = entry[1][1]
+#        if name != 'PLS' and name != 'SGD':
+#            estimators.append((name, model(**args)))
+#    models['STACK'] = (ensemble.StackingRegressor, {'estimators': estimators}, {})
 
     # ----------------------------------------
     # Pipeline definition
@@ -244,7 +235,8 @@ if __name__ == '__main__':
         # value in cross-validation. Alternatively, use nested hyperparameter
         # tuning with cross-validation to estimate generalization performance
         # ----------------------------------------
-        if name != 'SGD':   # SGD always needs scaling
+        exclude = set(['KNN','RNN','SGD','LinearSVC'])
+        if name not in exclude:   # nearest neighbors always needs scaling
             print('    Creating pipeline for {0: <16} - '.format(name), end = '')
             ppl = pipeline.Pipeline([(name, model(**args))])
 
@@ -262,19 +254,21 @@ if __name__ == '__main__':
         # ----------------------------------------
         # pipeline for current model with scaling
         # ----------------------------------------
-        print('    Creating pipeline for {0: <16} - '.format('Scaled' + name), end = '')
-        ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
+        exclude = set(['CatNB','CompNB','MultinNB'])
+        if name not in exclude:
+            print('    Creating pipeline for {0: <16} - '.format('Scaled' + name), end = '')
+            ppl = pipeline.Pipeline([('Scaler', pp.StandardScaler()), (name, model(**args))])
 
-        # add in hyperparameter tuning if applicable
-        if len(params) > 0:
-            param_grid = dict()
-            for tpl in params.items():
-                param_grid[name + '__' + tpl[0]] = tpl[1]
-            ppl = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
+            # add in hyperparameter tuning if applicable
+            if len(params) > 0:
+                param_grid = dict()
+                for tpl in params.items():
+                    param_grid[name + '__' + tpl[0]] = tpl[1]
+                ppl = sms.GridSearchCV(estimator = ppl, param_grid = param_grid)
 
-        # add pipeline to collection of piplines to try
-        pipelines['Scaled' + name] = ppl
-        print('done')
+            # add pipeline to collection of piplines to try
+            pipelines['Scaled' + name] = ppl
+            print('done')
     print('')
 
     # ----------------------------------------
