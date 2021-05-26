@@ -1,6 +1,5 @@
 #exec(open('experiments\\standardScaling_regression.py').read())
 # What effect does standard scaling have on different regression algorithms?
-# - linear_model.SGDRegressor should always be scaled
 # The following algorithms are sort of "indifferent" to standard scaling:
 # - linear_model.LinearRegression
 # - linear_model.Ridge
@@ -217,7 +216,7 @@ if __name__ == '__main__':
                 ticklabel.set_fontsize(12)                  # float
 
             fig.tight_layout()
-            fig.savefig('.\\experiments\\standardScaling_' + datasetname + '.png', format = 'png')
+            fig.savefig('.\\experiments\\standardScaling_regression_' + datasetname + '.png', format = 'png')
             #plt.show()
             plt.close('all')
 
@@ -245,5 +244,5 @@ if __name__ == '__main__':
     dfScoresScaled = pd.DataFrame(data = valsScaled, index = modelnamesScaled, columns = datasetnames)
     dfImprovement = (dfScores - dfScoresScaled) / dfScores * 100
     print(dfImprovement)
-    with open('.\\experiments\\standardScaling.pkl','wb') as fl:
+    with open('.\\experiments\\standardScaling_regression.pkl','wb') as fl:
         pk.dump(dfImprovement, fl)
