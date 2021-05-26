@@ -38,10 +38,10 @@ def datacfg():
     datacfg['iris']['probtype'] = ['classification']
     datacfg['pima'] = dict()
     datacfg['pima']['filepath'] = '.\\data\\pima.pkl'
-    datacfg['pima']['target'] = ['class']
+    datacfg['pima']['targets'] = ['class']
     datacfg['pima']['probtype'] = ['classification']
     datacfg['adult'] = dict()
     datacfg['adult']['filepath'] = '.\\data\\adult.pkl'
-    datacfg['adult']['target'] = ['class']
+    datacfg['adult']['targets'] = ['class']
     datacfg['adult']['probtype'] = ['classification']
     return datacfg
