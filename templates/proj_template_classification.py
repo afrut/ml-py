@@ -31,12 +31,13 @@ if __name__ == '__main__':
     with open('.\\data\\pima.pkl', 'rb') as fl:
         df = pk.load(fl)
     # check that there are no missing values
-    assert(np.all(np.logical_not(np.isnan(df.values)))), 'Nan values present'
+    assert(np.all(np.logical_not(df.isna()))), 'Nan values present'
 
     # ----------------------------------------
     # Constants
     # ----------------------------------------
     np.set_printoptions(precision = 4, suppress = True)
+    pd.options.display.float_format = '{:10,.4f}'.format
     seed = 29
 
     # ----------------------------------------
@@ -167,10 +168,8 @@ if __name__ == '__main__':
     # define estimator parameters
     # format: models[name] = (constructor, constructor_args, hyperparameter_grid)
     # TODO: comment/uncomment as needed
-
-
     models = dict()
-    models['GPC'] = (gp.GaussianProcessClassifier, {'kernel': 1.0 * gpk.RBF(1.0)}, {})
+    #models['GPC'] = (gp.GaussianProcessClassifier, {'kernel': 1.0 *gpk.RBF(1.0)}, {}) # this is kind of slow
     models['LR'] = (slm.LogisticRegression, {'max_iter': 1000}, {})
     models['PAC'] = (slm.PassiveAggressiveClassifier, {}, {})
     models['PERCPT'] = (slm.Perceptron, {}, {})
@@ -178,14 +177,14 @@ if __name__ == '__main__':
     models['SGD'] = (slm.SGDClassifier, {}, {})
     models['BernNB'] = (nb.BernoulliNB, {}, {})
     #models['CatNB'] = (nb.CategoricalNB, {}, {}) # look into this further, does not allow negative values
-    models['CompNB'] = (nb.ComplementNB, {}, {}) # does not allow negative values
+    #models['CompNB'] = (nb.ComplementNB, {}, {}) # does not allow negative values
     models['GaussNB'] = (nb.GaussianNB, {}, {})
-    models['MultinNB'] = (nb.MultinomialNB, {}, {}) # does not allow negative values
+    #models['MultinNB'] = (nb.MultinomialNB, {}, {}) # does not allow negative values
     models['KNN'] = (neighbors.KNeighborsClassifier, {}, {})
-    models['RNN'] = (neighbors.RadiusNeighborsClassifier, {'radius': 10}, {})
+    #models['RNN'] = (neighbors.RadiusNeighborsClassifier, {'radius': 10}, {})
     models['MLP'] = (nn.MLPClassifier, {'max_iter': 10000}, {})
-    models['LinearSVC'] = (svm.LinearSVC, {'max_iter': 10000}, {})
-    models['NuSVC'] = (svm.NuSVC, {}, {})
+    #models['LinearSVC'] = (svm.LinearSVC, {'max_iter': 10000}, {})
+    #models['NuSVC'] = (svm.NuSVC, {}, {})
     models['SVC'] = (svm.SVC, {}, {})
     models['TREE'] = (tree.DecisionTreeClassifier, {}, {})
     models['EXTREE'] = (tree.ExtraTreeClassifier, {}, {})
@@ -197,26 +196,6 @@ if __name__ == '__main__':
     models['GBM'] = (ensemble.GradientBoostingClassifier, {}, {})
     models['RF'] = (ensemble.RandomForestClassifier, {}, {})
     models['HISTGBM'] = (ensemble.HistGradientBoostingClassifier, {}, {})
-
-#    #Lcreate a voting regressor out of all the regressors
-#    estimators = list()
-#    for entry in models.items():
-#        name = entry[0]
-#        model = entry[1][0]
-#        args = entry[1][1]
-#        if name != 'PLS' and name != 'SGD':
-#            estimators.append((name, model(**args)))
-#    models['VOTE'] = (ensemble.VotingRegressor, {'estimators': estimators}, {})
-#
-#    # create a stacking regressor out of all the regressors
-#    estimators = list()
-#    for entry in models.items():
-#        name = entry[0]
-#        model = entry[1][0]
-#        args = entry[1][1]
-#        if name != 'PLS' and name != 'SGD':
-#            estimators.append((name, model(**args)))
-#    models['STACK'] = (ensemble.StackingRegressor, {'estimators': estimators}, {})
 
     # ----------------------------------------
     # Pipeline definition
@@ -270,6 +249,19 @@ if __name__ == '__main__':
             pipelines['Scaled' + name] = ppl
             print('done')
     print('')
+
+    # create voting and stacking classifiers
+    # TODO: specify estimators for voting classifier
+    estimators = list()
+    estimators.append(models['LR'])
+    estimators.append(models['ADA'])
+    estimators.append(models['GBM'])
+    estimators.append(models['RF'])
+    estimators.append(models['KNN'])
+    estimators.append(models['RIDGE'])
+    estimators.append(models['SVC'])
+    pipelines['VOTE'] = (ensemble.VotingClassifier, {'estimators': estimators}, {})
+    pipelines['STACK'] = (ensemble.StackingClassifier, {'estimators': estimators}, {})
 
     # ----------------------------------------
     # pipeline fitting and scoring
