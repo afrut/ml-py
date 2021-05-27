@@ -253,15 +253,15 @@ if __name__ == '__main__':
     # create voting and stacking classifiers
     # TODO: specify estimators for voting classifier
     estimators = list()
-    estimators.append(models['LR'])
-    estimators.append(models['ADA'])
-    estimators.append(models['GBM'])
-    estimators.append(models['RF'])
-    estimators.append(models['KNN'])
-    estimators.append(models['RIDGE'])
-    estimators.append(models['SVC'])
-    pipelines['VOTE'] = (ensemble.VotingClassifier, {'estimators': estimators}, {})
-    pipelines['STACK'] = (ensemble.StackingClassifier, {'estimators': estimators}, {})
+    estimators.append(('LR', pipelines['LR']))
+    estimators.append(('ADA', pipelines['ADA']))
+    estimators.append(('GBM', pipelines['GBM']))
+    estimators.append(('RF', pipelines['RF']))
+    estimators.append(('ScaledKNN', pipelines['ScaledKNN']))
+    estimators.append(('RIDGE', pipelines['RIDGE']))
+    estimators.append(('SVC', pipelines['SVC']))
+    pipelines['VOTE'] = pipeline.Pipeline([('model', ensemble.VotingClassifier(estimators = estimators))])
+    pipelines['STACK'] = pipeline.Pipeline([('model', ensemble.StackingClassifier(estimators = estimators))])
 
     # ----------------------------------------
     # pipeline fitting and scoring
