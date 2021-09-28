@@ -1,4 +1,8 @@
 #exec(open('.\\templates\\data_manipulation.py').read())
+# TODO: pd.DataFrame.pivot
+# TODO: pd.DataFrame.melt
+# TODO: np.count_nonzero
+# TODO: np.repeat
 import subprocess as sp
 import pandas as pd
 import numpy as np
