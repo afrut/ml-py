@@ -81,10 +81,47 @@ def hist(data
 
     return fig
 
+# function to creat a bar plot
+def bar(data
+    ,xticks = None
+    ,xticklabels = None
+    ,figsize = figsize
+    ,title = ''
+    ,xlabel = ''
+    ,ylabel = ''
+    ,savepath = None
+    ,show = True
+    ,close = True) -> mpl.figure:
+    if xticks is None:
+        xticks = np.array(range(len(data)))
+    if xticklabels is None:
+        xticklabels = np.array(range(len(data)))
+    fig = plt.figure(figsize = figsize)
+    ax = fig.add_subplot(1, 1, 1)
+    barcontainer = ax.bar(x = xticks, height = data)
+    ax.set_title(title)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticklabels)
+    formatxticklabels(ax)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    fig.tight_layout()
+    if savepath is not None:
+        fig.savefig(savepath, format = 'png')
+    if show:
+        plt.show()
+    if close:
+        plt.close()
+
+    return fig
+
 if __name__ == '__main__':
     sp.call('cls', shell = True)
     plt.close('all')
 
+    # ----------------------------------------
+    # histogram
+    # ----------------------------------------
     with open('.\\data\\pima.pkl','rb') as fl:
         df = pk.load(fl)
 
@@ -93,6 +130,19 @@ if __name__ == '__main__':
 
     # xticklabels are formatted to have only 3 decimal places
     fig.axes[0].xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter('{x:.3f}'))
+
+    # ----------------------------------------
+    # barplot
+    # ----------------------------------------
+    with open('.\\data\\iris.pkl', 'rb') as fl:
+        df = pk.load(fl)
+
+    # get non-numeric data
+    data = df.loc[:, df.select_dtypes([object]).columns].values.astype('str')
+
+    # count unique values
+    valsunq, counts = np.unique(data, return_counts = True)
+    fig = bar(data = counts, xticklabels = valsunq, title = 'Iris Classes')
 
     plt.show()
     plt.close('all')
