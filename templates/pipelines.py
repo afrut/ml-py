@@ -10,6 +10,18 @@ import sklearn.preprocessing as pp
 import sklearn.pipeline as pipeline
 import sklearn.decomposition as decomp
 import sklearn.feature_selection as fs
+import sklearn.base as sb
+
+# A non-sensical custom transformer that multiplies data with a slope and intercept:
+class CustomTransformer(sb.BaseEstimator, sb.TransformerMixin):
+    def __init__(self, m, b):
+        self.m = m
+        self.b = b
+    def fit(self, X, y = None):
+        # No fitting method needed
+        return self
+    def transform(self, X, y = None):
+        return (self.m * X) + self.b
 
 if __name__ == '__main__':
     sp.call('cls', shell = True)
@@ -26,6 +38,7 @@ if __name__ == '__main__':
 
     # define the steps in the pipeline
     estimators = list()
+    estimators.append(('custom', CustomTransformer(1,0)))       # add a custom transformer
     estimators.append(('standardize', pp.StandardScaler()))     # preprocess by standardizing data
     estimators.append(('lda', da.LinearDiscriminantAnalysis())) # run LDA on the standardized data
     model = pipeline.Pipeline(estimators)                       # create a model from the steps in the pipeline
