@@ -41,8 +41,9 @@ if __name__ == '__main__':
     print('OneHotEncoder transformed data:\n{0}\n'.format(Xtrans[0:10, :]))
 
     # dummy encoding using OneHotEncoder by dropping (alphabetically) first category
+    # handle_unknown = 'ignore' means if a new category is encountered in the test set, ignore the value and continue.
     X = df['native-country'].values[:, np.newaxis]
-    enc = pp.OneHotEncoder(sparse = False, drop = 'first')
+    enc = pp.OneHotEncoder(sparse = False, drop = 'first', handle_unknown = 'ignore')
     enc.fit(X)
     Xtrans = enc.transform(X)
     print('Number of categories: {0}'.format(len(enc.categories_[0])))
