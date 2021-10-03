@@ -6,3 +6,4 @@ png/*
 p.cmd
 s.cmd
 experiments/*.pkl
+/scratch.py
