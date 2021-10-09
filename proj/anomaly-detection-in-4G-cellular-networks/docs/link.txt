@@ -1,0 +1,1 @@
+https://www.kaggle.com/c/anomaly-detection-in-4g-cellular-networks/overview/evaluation

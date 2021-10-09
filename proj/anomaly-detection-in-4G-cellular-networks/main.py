@@ -1,4 +1,4 @@
-#exec(open('main.py').read())
+#exec(open('proj\\anomaly-detection-of-cellular-network\\main.py').read())
 import subprocess as sp
 import matplotlib.pyplot as plt
 import pickle as pk
