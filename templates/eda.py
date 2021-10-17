@@ -29,9 +29,10 @@ if __name__ == '__main__':
     print('Number of Columns: {0}'.format(df.shape[1]))
     print('')
 
-    print('Column Names:')
-    for col in df.columns:
-        print('    ' + col)
+    print('Column Names and Data Types:')
+    datatypes = df.dtypes
+    for idx in datatypes.index:
+        print('    {0} - {1}'.format(idx, datatypes[idx]))
     print('')
 
     print('First 20 rows:')
@@ -40,12 +41,6 @@ if __name__ == '__main__':
 
     print('Last 20 rows:')
     print(df.tail(20))
-    print('')
-
-    print('Data types:')
-    datatypes = df.dtypes
-    for idx in datatypes.index:
-        print('    {0} - {1}'.format(idx, datatypes[idx]))
     print('')
 
     print('Class sizes:')
