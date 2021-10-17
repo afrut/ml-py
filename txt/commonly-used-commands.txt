@@ -1,0 +1,5 @@
+Generate a requirements file for installation by pip.
+python -m pip freeze > requirements.txt
+
+Install from a requirements file.
+python -m pip install -r requirements
